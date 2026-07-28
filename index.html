@@ -205,7 +205,9 @@
   .timer-display{font-family:'IBM Plex Mono',monospace; font-size:56px; font-weight:600; letter-spacing:0.02em; margin-bottom:6px;}
   .rest-tag{font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-faint); margin-bottom:18px; font-family:'Oswald',sans-serif; font-weight:600;}
 
-  .guided-controls{padding:8px 20px calc(22px + var(--safe-bottom)); display:flex; flex-direction:column; gap:10px; flex-shrink:0;}
+  .guided-controls{padding:8px 20px 6px; display:flex; flex-direction:column; gap:10px; flex-shrink:0;}
+  .guided-notes{padding:10px 20px calc(18px + var(--safe-bottom)); flex-shrink:0;}
+  .guided-notes-textarea{min-height:76px; margin-bottom:0;}
   .row2{display:flex; gap:10px;}
   .row2 .half{flex:1;}
   .btn-round{
@@ -462,6 +464,11 @@
           <button class="btn-ghost half" id="prevExBtn">&#8592; Previous</button>
           <button class="btn-ghost half" id="nextExBtn">Skip &#8594;</button>
         </div>
+      </div>
+
+      <div class="guided-notes">
+        <div class="weight-label" style="margin-bottom:6px;">Notes</div>
+        <textarea id="guidedNotesInput" class="notes-textarea guided-notes-textarea" placeholder="Form cues, how it felt, adjustments to try next time…"></textarea>
       </div>
     </div>
 
@@ -1076,8 +1083,17 @@ function loadExercise(startSetIndex){
     const wArr = getWeightsArrayFor(ex);
     document.getElementById('weightInput').value = (wArr[guided.setIndex] !== undefined && wArr[guided.setIndex] !== '') ? wArr[guided.setIndex] : '';
   }
+  document.getElementById('guidedNotesInput').value = state.exerciseNotes[ex.name] || '';
   updateSegments();
 }
+
+document.getElementById('guidedNotesInput').addEventListener('input', (e)=>{
+  const ex = currentExercise();
+  state.exerciseNotes[ex.name] = e.target.value;
+});
+document.getElementById('guidedNotesInput').addEventListener('change', ()=>{
+  saveProgress();
+});
 
 // -- time mode controls --
 document.getElementById('startTimerBtn').addEventListener('click', ()=>{

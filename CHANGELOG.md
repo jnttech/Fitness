@@ -2,6 +2,9 @@
 
 All notable changes to Phase Tracker, in plain English. Newest first.
 
+## v14 — Notes visible during guided workouts
+- The shared per-exercise notes box now also appears at the bottom of the guided workout screen (below the controls and Previous/Skip), editable in place. It reads from and writes to the same shared note as the Day Detail and History views.
+
 ## v13 — Per-exercise notes + History "zoom in"
 - Added a persistent "My Notes" text box to every exercise's info screen. Notes are keyed by exercise name, so they carry forward and stay in sync everywhere that exercise appears (Day Detail, and any day/week it's scheduled on).
 - Clicking an exercise inside a History session now "zooms in" to the same info screen, additionally showing that session's per-set weights (editable) alongside the shared notes.
