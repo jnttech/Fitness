@@ -2,6 +2,10 @@
 
 All notable changes to Phase Tracker, in plain English. Newest first.
 
+## v16 — Notes on Morning Flow/Evening Rolling + fuller History detail
+- Morning Flow and Evening Rolling's Day Detail screen now has its own "My Notes" box directly visible — no need to tap into the "i" screen first. It shares the same note as everywhere else that exercise appears.
+- History session detail now lists every exercise that was part of that session, not just ones with weights entered. Time-based exercises (stretches, cardio, rolling, etc.) show "Tap to view notes" and are still fully clickable through to the shared notes/technique screen.
+
 ## v15 — Notes no longer lost on early exit
 - Notes only saved to storage when the notes box lost focus. Closing the guided-workout screen or the exercise info screen right after typing (without tapping elsewhere first) could silently drop that note. Both close buttons now force a save first.
 

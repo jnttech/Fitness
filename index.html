@@ -681,6 +681,14 @@ const ALL_EXERCISES = [
 function findExerciseByName(name){
   return ALL_EXERCISES.find(e => e.name === name) || null;
 }
+// Looks up the full day/session definition by the dayId stored on a completed
+// history entry, so History can list every exercise that was actually part of
+// that session — not just the ones with weights logged.
+function findDayById(dayId){
+  if(dayId === 'daily-min-morning') return DAILY_MIN_MORNING;
+  if(dayId === 'daily-min-evening') return DAILY_MIN_EVENING;
+  return DAYS.find(d => d.id === dayId) || null;
+}
 
 const BENCHMARKS = [
   "Overhead Squat (depth / notes)",
@@ -905,6 +913,20 @@ function openDayDetail(day){
     row.querySelector('.info-btn').addEventListener('click', ()=> openExerciseInfo(ex));
     exList.appendChild(row);
   });
+  if(isDailyMinId(day.id) && day.exercises.length===1){
+    const ex = day.exercises[0];
+    const notesBlock = document.createElement('div');
+    notesBlock.innerHTML = '<div class="section-title" style="margin-top:20px;">My Notes</div>';
+    const textarea = document.createElement('textarea');
+    textarea.id = 'ddNotes';
+    textarea.className = 'notes-textarea';
+    textarea.placeholder = 'Form cues, how it felt, adjustments to try next time…';
+    textarea.value = state.exerciseNotes[ex.name] || '';
+    textarea.addEventListener('input', (e)=>{ state.exerciseNotes[ex.name] = e.target.value; });
+    textarea.addEventListener('change', ()=>{ saveProgress(); });
+    notesBlock.appendChild(textarea);
+    exList.appendChild(notesBlock);
+  }
   updateCompleteToggleUI();
   document.getElementById('dayDetailOverlay').classList.add('active');
 }
@@ -977,6 +999,7 @@ function updateCompleteToggleUI(){
     : (isDaily ? 'Not completed today' : 'Not completed');
 }
 document.getElementById('closeDayDetail').addEventListener('click', ()=>{
+  saveProgress();
   document.getElementById('dayDetailOverlay').classList.remove('active');
 });
 document.getElementById('startGuidedBtn').addEventListener('click', ()=>{
@@ -1310,21 +1333,27 @@ function openHistoryDetail(session){
   document.getElementById('hdSub').textContent = d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}) + (session.week ? ' · Week '+session.week : '');
   const body = document.getElementById('hdBody');
   const weights = session.weights || {};
-  const names = Object.keys(weights).filter(name => weights[name].some(w => w!==''&&w!==undefined&&w!==null));
+  const day = findDayById(session.day);
+  // Prefer the full exercise list for that day (covers time-based exercises with
+  // no weights at all); fall back to just the weighted names for older/odd entries.
+  const exercises = day ? day.exercises : Object.keys(weights).map(name => findExerciseByName(name)).filter(Boolean);
   body.innerHTML = '';
-  if(names.length===0){
-    body.innerHTML = '<div class="empty-state">No weights logged for this session.</div>';
+  if(exercises.length===0){
+    body.innerHTML = '<div class="empty-state">No exercise details available for this session.</div>';
   } else {
-    names.forEach(name=>{
+    exercises.forEach(ex=>{
+      const name = ex.name;
       const arr = weights[name];
-      const setsStr = arr.map((w,i)=>'Set '+(i+1)+': '+((w!==''&&w!==undefined&&w!==null) ? w : '—')).join(' &nbsp;·&nbsp; ');
+      const hasWeights = arr && arr.some(w => w!==''&&w!==undefined&&w!==null);
+      const setsStr = hasWeights
+        ? arr.map((w,i)=>'Set '+(i+1)+': '+((w!==''&&w!==undefined&&w!==null) ? w : '—')).join(' &nbsp;·&nbsp; ')
+        : 'Tap to view notes';
       const row = document.createElement('div');
       row.className = 'exlist-row';
       row.style.cursor = 'pointer';
       row.innerHTML = `<div class="exname" style="margin-bottom:6px;">${name}</div><div class="extarget" style="font-size:12px;">${setsStr}</div>`;
       row.addEventListener('click', ()=>{
-        const ex = findExerciseByName(name);
-        if(ex) openExerciseInfo(ex, {session});
+        openExerciseInfo(ex, {session});
       });
       body.appendChild(row);
     });
