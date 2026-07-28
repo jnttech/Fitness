@@ -2,6 +2,14 @@
 
 All notable changes to Phase Tracker, in plain English. Newest first.
 
+## v13 — Per-exercise notes + History "zoom in"
+- Added a persistent "My Notes" text box to every exercise's info screen. Notes are keyed by exercise name, so they carry forward and stay in sync everywhere that exercise appears (Day Detail, and any day/week it's scheduled on).
+- Clicking an exercise inside a History session now "zooms in" to the same info screen, additionally showing that session's per-set weights (editable) alongside the shared notes.
+
+## v12 — "Today" section + duplicated day workout
+- Renamed "Anytime" to "Today."
+- Added today's scheduled workout (based on real weekday, Mon=Day1..Sun=Day7) as a duplicate card between Morning Flow and Evening Rolling, so the full day can be done top to bottom in one place. Completion status is shared with the same day's card in "This Week."
+
 ## v11 — Export / Import for moving data between devices
 - Added a "Backup & Transfer" section (Benchmarks tab) to export your saved data as text, and import it on another device.
 - Needed because storage is per-device/per-browser — there's no automatic syncing between your Mac and iPhone.
