@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Phase Tracker</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Phase Tracker">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#14171B">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAC6ElEQVR4nO3csU3kQABAUXO6EpAIyAhpgRIog5CAhIASCEgICCmDEmiBkFouOOlEwEe7azPm5Pfi8Xik+R7vCrRHxyenE3zm19oL4OcSB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEH6vfYCVnN+97T74Lf76+9byY91tMGfYNgri4+2lsjmXisHlzHz2v/RtuKYv7ub6mNDcSy1r9vpY0NxsK+txLHs476Rw2MrcXAAcZDEQRIHSRwkcZDEQRIHSRyk7f4/x7ouHm93H/x68/B9K/mCOEbbK4uPl4xPxGtlqAPKWOTaw4hjnPm7O7gPcQyy1L6O7EMcJHGMsOzjPuzwEAdJHCRxkMRBEgdJHCRxkNb8w9vL1dnugy+f379vJXxqnTj2yuLjJRIZaYXXygFlLHIt+xodx/zd1ccwQ+NYal/1MYZvK6RxcSz7uDs8BnBykMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBGhfH5fP7irO93V8vePd9Z3u9eVjw7svO9gUnB2loHEsdHofNs9Thcdg8Sz3uw46NafzJMb+POTPM72PODPP3dWQZ0yqvlTm7O7+tObs7v605uzu4jGmajo5PTgff8p+Xq7PdBy/7eXaapvO7p90HL/t5dpqmi8fb3QePz+KvNePgh/NthSQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iD9AfqnaAHNs5VzAAAAAElFTkSuQmCC">
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAC6ElEQVR4nO3csU3kQABAUXO6EpAIyAhpgRIog5CAhIASCEgICCmDEmiBkFouOOlEwEe7azPm5Pfi8Xik+R7vCrRHxyenE3zm19oL4OcSB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEH6vfYCVnN+97T74Lf76+9byY91tMGfYNgri4+2lsjmXisHlzHz2v/RtuKYv7ub6mNDcSy1r9vpY0NxsK+txLHs476Rw2MrcXAAcZDEQRIHSRwkcZDEQRIHSRyk7f4/x7ouHm93H/x68/B9K/mCOEbbK4uPl4xPxGtlqAPKWOTaw4hjnPm7O7gPcQyy1L6O7EMcJHGMsOzjPuzwEAdJHCRxkMRBEgdJHCRxkNb8w9vL1dnugy+f379vJXxqnTj2yuLjJRIZaYXXygFlLHIt+xodx/zd1ccwQ+NYal/1MYZvK6RxcSz7uDs8BnBykMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBGhfH5fP7irO93V8vePd9Z3u9eVjw7svO9gUnB2loHEsdHofNs9Thcdg8Sz3uw46NafzJMb+POTPM72PODPP3dWQZ0yqvlTm7O7+tObs7v605uzu4jGmajo5PTgff8p+Xq7PdBy/7eXaapvO7p90HL/t5dpqmi8fb3QePz+KvNePgh/NthSQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iD9AfqnaAHNs5VzAAAAAElFTkSuQmCC">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14171B;
+    --bg-elev:#1C2025;
+    --bg-elev2:#22262C;
+    --border:#2C3138;
+    --text:#EDEEF0;
+    --text-dim:#9AA0A8;
+    --text-faint:#5B616B;
+    --strength:#C97A3D;
+    --strength-dim:#3A2C20;
+    --cardio:#3E8FB0;
+    --cardio-dim:#1E2E35;
+    --flex:#4FA88F;
+    --flex-dim:#1B2E29;
+    --rest:#8A8FA0;
+    --rest-dim:#26282F;
+    --danger:#C0453B;
+    --success:#3FA35B;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; height:100%; overflow:hidden;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    display:flex;
+    justify-content:center;
+  }
+  #app{
+    width:100%;
+    max-width:480px;
+    height:100vh;
+    height:100dvh;
+    background:var(--bg);
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    padding-left:var(--safe-left);
+    padding-right:var(--safe-right);
+    overflow:hidden;
+  }
+  .display{font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:0.02em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  header.topbar{
+    padding:calc(22px + var(--safe-top)) 20px 16px;
+    border-bottom:1px solid var(--border);
+    flex-shrink:0;
+  }
+  .eyebrow{font-size:11px; letter-spacing:0.14em; color:var(--text-faint); font-family:'Oswald',sans-serif; text-transform:uppercase; font-weight:600;}
+  .phase-title{font-size:26px; font-weight:700; margin:4px 0 2px; line-height:1.05;}
+  .phase-sub{font-size:13px; color:var(--text-dim);}
+
+  .week-nav{display:flex; align-items:center; gap:10px; margin-top:14px;}
+  .week-nav button{
+    width:32px; height:32px; border-radius:8px; border:1px solid var(--border);
+    background:var(--bg-elev); color:var(--text); font-size:16px; cursor:pointer;
+  }
+  .week-nav .week-label{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-dim); flex:1; text-align:center;}
+
+  main{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:18px 20px calc(90px + var(--safe-bottom));}
+  .screen{display:none;}
+  .screen.active{display:block;}
+
+  .quickcard{
+    background:var(--bg-elev); border:1px solid var(--border); border-radius:14px;
+    padding:14px 16px; display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:18px; cursor:pointer;
+  }
+  .quickcard .qc-left .qc-title{font-size:14px; font-weight:600;}
+  .quickcard .qc-left .qc-sub{font-size:12px; color:var(--text-dim); margin-top:2px;}
+  .go-dot{width:10px; height:10px; border-radius:50%; background:var(--flex);}
+
+  .daycard{
+    border:1px solid var(--border); border-radius:14px; padding:14px 16px; margin-bottom:12px;
+    display:flex; align-items:center; gap:14px; cursor:pointer; background:var(--bg-elev);
+  }
+  .daycard .tag{
+    width:6px; align-self:stretch; border-radius:4px; flex-shrink:0;
+  }
+  .daycard .info{flex:1;}
+  .daycard .day-num{font-size:11px; color:var(--text-faint); font-family:'IBM Plex Mono',monospace; letter-spacing:0.05em;}
+  .daycard .day-label{font-size:16px; font-weight:600; margin-top:1px;}
+  .daycard .day-sub{font-size:12px; color:var(--text-dim); margin-top:2px;}
+  .daycard .day-dur{font-size:11px; color:var(--text-faint); font-family:'IBM Plex Mono',monospace; white-space:nowrap;}
+  .daycard.done{opacity:0.55;}
+
+  .type-strength{background:var(--strength);} .bg-strength{background:var(--strength-dim); color:var(--strength);}
+  .type-cardio{background:var(--cardio);} .bg-cardio{background:var(--cardio-dim); color:var(--cardio);}
+  .type-flex{background:var(--flex);} .bg-flex{background:var(--flex-dim); color:var(--flex);}
+  .type-rest{background:var(--rest);} .bg-rest{background:var(--rest-dim); color:var(--rest);}
+
+  nav.tabbar{
+    position:absolute; bottom:0; left:0; right:0;
+    display:flex; border-top:1px solid var(--border); background:var(--bg-elev);
+    padding-bottom:var(--safe-bottom); flex-shrink:0;
+  }
+  nav.tabbar button{
+    flex:1; background:none; border:none; padding:12px 4px 14px; cursor:pointer;
+    color:var(--text-faint); font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:0.08em;
+    text-transform:uppercase; font-weight:600; border-top:2px solid transparent;
+  }
+  nav.tabbar button.active{color:var(--text); border-top:2px solid var(--flex);}
+
+  .section-title{font-family:'Oswald',sans-serif; text-transform:uppercase; font-size:13px; letter-spacing:0.08em; color:var(--text-dim); margin:22px 0 10px; font-weight:600;}
+  .section-title:first-child{margin-top:0;}
+
+  /* overlay screens (day detail / guided session) */
+  .overlay{
+    position:absolute; inset:0; background:var(--bg); z-index:10;
+    display:none; flex-direction:column;
+  }
+  .overlay.active{display:flex;}
+  .overlay-head{padding:calc(18px + var(--safe-top)) 20px 12px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; flex-shrink:0;}
+  .overlay-head .close-btn{
+    width:34px; height:34px; border-radius:9px; border:1px solid var(--border); background:var(--bg-elev);
+    color:var(--text); font-size:16px; cursor:pointer; flex-shrink:0;
+  }
+  .overlay-head .oh-title{font-size:16px; font-weight:700;}
+  .overlay-head .oh-sub{font-size:12px; color:var(--text-dim);}
+  .overlay-body{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:16px 20px calc(24px + var(--safe-bottom));}
+
+  .quickcard.done{opacity:0.55;}
+
+  .exlist-row{
+    padding:12px 14px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px;
+    background:var(--bg-elev);
+  }
+  .exlist-row-top{display:flex; justify-content:space-between; align-items:center;}
+  .exlist-row .exname{font-size:14px; font-weight:500;}
+  .exlist-row .extarget{font-size:12px; color:var(--text-dim); font-family:'IBM Plex Mono',monospace; white-space:nowrap; margin-left:10px;}
+  .ex-detail-list{margin:8px 0 0; padding-left:18px; color:var(--text-dim); font-size:12px; line-height:1.6;}
+  .ex-right{display:flex; align-items:center; gap:8px; flex-shrink:0;}
+  .info-btn{
+    width:22px; height:22px; border-radius:50%; border:1px solid var(--border); background:var(--bg-elev2);
+    color:var(--text-dim); font-size:12px; font-style:italic; font-family:'IBM Plex Mono',monospace; cursor:pointer;
+    flex-shrink:0; display:flex; align-items:center; justify-content:center; padding:0;
+  }
+  .ex-last-weight{font-size:11px; color:var(--text-faint); font-family:'IBM Plex Mono',monospace; margin-top:6px;}
+
+  .weight-input-wrap{margin-top:18px; display:flex; flex-direction:column; align-items:center; gap:6px;}
+  .weight-label{font-size:11px; color:var(--text-faint); letter-spacing:0.05em; text-transform:uppercase; font-family:'Oswald',sans-serif; font-weight:600;}
+  .weight-input{
+    width:130px; text-align:center; background:var(--bg-elev); border:1px solid var(--border); border-radius:10px;
+    padding:10px; color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:16px;
+  }
+  .weight-input::-webkit-outer-spin-button, .weight-input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
+
+  #exerciseInfoOverlay, #historyDetailOverlay{z-index:11;}
+
+  .btn-primary{
+    width:100%; padding:15px; border-radius:12px; border:none; cursor:pointer;
+    background:var(--flex); color:#0D1512; font-family:'Oswald',sans-serif; font-weight:700;
+    font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-top:14px;
+  }
+  .btn-secondary{
+    width:100%; padding:13px; border-radius:12px; cursor:pointer; margin-top:10px;
+    background:none; border:1px solid var(--border); color:var(--text-dim); font-size:13px;
+  }
+
+  /* guided session */
+  #guidedActive{display:flex; flex-direction:column; flex:1; min-height:0;}
+  .seg-row{display:flex; gap:4px; padding:14px 20px 0; flex-shrink:0;}
+  .seg{flex:1; height:5px; border-radius:3px; background:var(--bg-elev2); overflow:hidden; position:relative;}
+  .seg .fill{position:absolute; left:0; top:0; bottom:0; width:0%; background:var(--flex); border-radius:3px;}
+
+  .guided-body{flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px 24px 10px; text-align:center;}
+  .ex-index{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-faint); margin-bottom:10px; letter-spacing:0.06em;}
+  .ex-name{font-family:'Oswald',sans-serif; font-size:28px; font-weight:700; text-transform:uppercase; line-height:1.1; margin-bottom:10px;}
+  .ex-instruction{font-size:14px; color:var(--text-dim); line-height:1.5; max-width:340px; margin-bottom:26px;}
+  .set-label{font-size:13px; color:var(--text-dim); margin-bottom:6px; font-family:'IBM Plex Mono',monospace;}
+  .timer-display{font-family:'IBM Plex Mono',monospace; font-size:56px; font-weight:600; letter-spacing:0.02em; margin-bottom:6px;}
+  .rest-tag{font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-faint); margin-bottom:18px; font-family:'Oswald',sans-serif; font-weight:600;}
+
+  .guided-controls{padding:8px 20px calc(22px + var(--safe-bottom)); display:flex; flex-direction:column; gap:10px; flex-shrink:0;}
+  .row2{display:flex; gap:10px;}
+  .row2 .half{flex:1;}
+  .btn-round{
+    padding:16px; border-radius:14px; border:none; cursor:pointer;
+    font-family:'Oswald',sans-serif; font-weight:700; font-size:15px; letter-spacing:0.04em; text-transform:uppercase;
+  }
+  .btn-go{background:var(--flex); color:#0D1512;}
+  .btn-pause{background:var(--bg-elev2); color:var(--text); border:1px solid var(--border);}
+  .btn-ghost{background:none; border:none; color:var(--text-faint); font-size:12px; padding:6px; cursor:pointer;}
+  .rest-btn{width:130px; flex:none;}
+  .btn-danger{background:var(--danger); color:#fff; border:1px solid var(--danger);}
+  .btn-success{background:var(--success); color:#fff; border:1px solid var(--success);}
+
+  .complete-wrap{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px 24px calc(24px + var(--safe-bottom)); text-align:center;}
+  .complete-wrap .big{font-family:'Oswald',sans-serif; font-size:26px; font-weight:700; text-transform:uppercase; margin-bottom:8px;}
+  .complete-wrap .small{font-size:13px; color:var(--text-dim); margin-bottom:22px;}
+
+  /* history */
+  .hist-row{display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border);}
+  .hist-dot{width:9px; height:9px; border-radius:50%; flex-shrink:0;}
+  .hist-day{font-size:14px; font-weight:500;}
+  .hist-date{font-size:11px; color:var(--text-faint); font-family:'IBM Plex Mono',monospace;}
+  .empty-state{text-align:center; padding:40px 10px; color:var(--text-faint); font-size:13px;}
+
+  /* benchmarks */
+  .bench-row{margin-bottom:16px;}
+  .bench-name{font-size:13px; margin-bottom:6px; color:var(--text);}
+  .bench-inputs{display:flex; gap:8px;}
+  .bench-inputs input{
+    flex:1; background:var(--bg-elev); border:1px solid var(--border); border-radius:9px;
+    padding:9px 10px; color:var(--text); font-size:13px; font-family:'IBM Plex Mono',monospace;
+  }
+  .bench-inputs input::placeholder{color:var(--text-faint); font-family:'Inter',sans-serif;}
+
+  /* roadmap */
+  .phase-card{border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:12px; background:var(--bg-elev);}
+  .phase-card.locked{opacity:0.5;}
+  .phase-card .pc-eyebrow{font-size:11px; letter-spacing:0.08em; font-family:'Oswald',sans-serif; font-weight:600; text-transform:uppercase;}
+  .phase-card .pc-title{font-size:17px; font-weight:700; margin:4px 0 6px;}
+  .phase-card .pc-desc{font-size:13px; color:var(--text-dim); line-height:1.5;}
+
+  .toast{
+    position:absolute; bottom:calc(78px + var(--safe-bottom)); left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--bg-elev2); border:1px solid var(--border); padding:8px 16px; border-radius:20px;
+    font-size:12px; color:var(--text-dim); opacity:0; transition:all 0.25s ease; pointer-events:none; z-index:50;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .reset-link{text-align:center; font-size:11px; color:var(--text-faint); margin-top:24px; cursor:pointer; text-decoration:underline;}
+
+  .toggle-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 4px 4px; margin-top:16px; border-top:1px solid var(--border);
+  }
+  .toggle-label{font-size:14px; font-weight:500; color:var(--text);}
+  .toggle-switch{
+    width:52px; height:30px; border-radius:15px; background:var(--bg-elev2);
+    border:1px solid var(--border); position:relative; cursor:pointer; flex-shrink:0;
+    transition:background 0.2s ease;
+  }
+  .toggle-switch.on{background:var(--flex); border-color:var(--flex);}
+  .toggle-knob{
+    width:24px; height:24px; border-radius:50%; background:var(--text-dim);
+    position:absolute; top:2px; left:2px; transition:left 0.2s ease, background 0.2s ease;
+  }
+  .toggle-switch.on .toggle-knob{left:24px; background:#0D1512;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="topbar">
+    <div class="eyebrow" id="phaseEyebrow">Phase 1 of 3</div>
+    <div class="phase-title">Flexibility Priority</div>
+    <div class="phase-sub">Strength &amp; Cardio in maintenance — building range for what's next</div>
+    <div class="week-nav">
+      <button id="weekPrev">&#8249;</button>
+      <div class="week-label" id="weekLabel">WEEK 1 OF 6</div>
+      <button id="weekNext">&#8250;</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- THIS WEEK -->
+    <section class="screen active" id="screen-week">
+      <div class="section-title">Anytime</div>
+      <div class="quickcard" id="dailyMinMorningCard">
+        <div class="qc-left">
+          <div class="qc-title">Morning Flow</div>
+          <div class="qc-sub" id="dailyMinMorningSub">5 min · mobility</div>
+        </div>
+        <div class="go-dot"></div>
+      </div>
+      <div class="quickcard" id="dailyMinEveningCard">
+        <div class="qc-left">
+          <div class="qc-title">Evening Rolling</div>
+          <div class="qc-sub" id="dailyMinEveningSub">5 min · fascial release</div>
+        </div>
+        <div class="go-dot"></div>
+      </div>
+
+      <div class="section-title">This Week</div>
+      <div id="dayList"></div>
+    </section>
+
+    <!-- HISTORY -->
+    <section class="screen" id="screen-history">
+      <div class="section-title">Completed Sessions</div>
+      <div id="historyList"></div>
+    </section>
+
+    <!-- BENCHMARKS -->
+    <section class="screen" id="screen-benchmarks">
+      <div class="section-title">Week 0 → Week 6</div>
+      <div id="benchList"></div>
+      <div class="reset-link" id="resetProgress">Reset all saved progress</div>
+    </section>
+
+    <!-- ROADMAP -->
+    <section class="screen" id="screen-roadmap">
+      <div class="section-title">3-Phase Plan</div>
+      <div id="roadmapList"></div>
+    </section>
+  </main>
+
+  <nav class="tabbar">
+    <button class="tab-btn active" data-tab="week">This Week</button>
+    <button class="tab-btn" data-tab="history">History</button>
+    <button class="tab-btn" data-tab="benchmarks">Benchmarks</button>
+    <button class="tab-btn" data-tab="roadmap">Roadmap</button>
+  </nav>
+
+  <!-- DAY DETAIL OVERLAY -->
+  <div class="overlay" id="dayDetailOverlay">
+    <div class="overlay-head">
+      <button class="close-btn" id="closeDayDetail">&#8592;</button>
+      <div>
+        <div class="oh-title" id="ddTitle">Day</div>
+        <div class="oh-sub" id="ddSub">Sub</div>
+      </div>
+    </div>
+    <div class="overlay-body">
+      <div id="ddExList"></div>
+      <button class="btn-primary" id="startGuidedBtn">Start Guided Workout</button>
+      <div class="toggle-row">
+        <div class="toggle-label" id="toggleLabel">Not completed</div>
+        <div class="toggle-switch" id="completeToggle"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXERCISE INFO OVERLAY -->
+  <div class="overlay" id="exerciseInfoOverlay">
+    <div class="overlay-head">
+      <button class="close-btn" id="closeExerciseInfo">&#8592;</button>
+      <div>
+        <div class="oh-title" id="eiTitle">Exercise</div>
+        <div class="oh-sub" id="eiSub" style="display:none;"></div>
+      </div>
+    </div>
+    <div class="overlay-body">
+      <div class="section-title" style="margin-top:0;">How To</div>
+      <div id="eiDescription" style="font-size:14px; color:var(--text-dim); line-height:1.6; margin-bottom:20px;"></div>
+      <div class="section-title">Focus On</div>
+      <ul id="eiFocusList" class="ex-detail-list" style="margin-bottom:20px; font-size:13px;"></ul>
+      <div class="section-title">Watch Out For</div>
+      <ul id="eiAvoidList" class="ex-detail-list" style="font-size:13px;"></ul>
+    </div>
+  </div>
+
+  <!-- HISTORY DETAIL OVERLAY -->
+  <div class="overlay" id="historyDetailOverlay">
+    <div class="overlay-head">
+      <button class="close-btn" id="closeHistoryDetail">&#8592;</button>
+      <div>
+        <div class="oh-title" id="hdTitle">Session</div>
+        <div class="oh-sub" id="hdSub">Date</div>
+      </div>
+    </div>
+    <div class="overlay-body" id="hdBody"></div>
+  </div>
+
+  <!-- GUIDED SESSION OVERLAY -->
+  <div class="overlay" id="guidedOverlay">
+    <div class="overlay-head">
+      <button class="close-btn" id="exitGuided">&#10005;</button>
+      <div>
+        <div class="oh-title" id="guidedTitle">Session</div>
+      </div>
+    </div>
+    <div class="seg-row" id="segRow"></div>
+
+    <div id="guidedActive">
+      <div class="guided-body">
+        <div class="ex-index" id="exIndex">EXERCISE 1 OF 8</div>
+        <div class="ex-name" id="exName">Name</div>
+        <div class="ex-instruction" id="exInstruction">Instruction</div>
+
+        <div id="timeMode">
+          <div class="set-label" id="setLabelTime">SET 1 OF 3</div>
+          <div class="timer-display mono" id="timerDisplay">00:50</div>
+        </div>
+
+        <div id="restMode" style="display:none;">
+          <div class="rest-tag">Rest</div>
+          <div class="timer-display mono" id="restDisplay">00:30</div>
+          <div class="row2" style="width:100%; max-width:280px; margin-top:20px; justify-content:center;">
+            <button class="btn-round rest-btn btn-danger" id="pauseRestBtn">Pause</button>
+            <button class="btn-round rest-btn btn-pause" id="nextBtn">Next</button>
+          </div>
+        </div>
+
+        <div id="repsMode" style="display:none;">
+          <div class="set-label" id="setLabelReps">SET 1 OF 3</div>
+          <div class="ex-name" id="repsTarget" style="font-size:22px;">5 reps</div>
+          <div class="weight-input-wrap">
+            <label class="weight-label" for="weightInput">Weight (optional)</label>
+            <input type="number" inputmode="decimal" id="weightInput" class="weight-input" placeholder="—">
+          </div>
+          <button class="btn-round btn-go" id="startSetBtn" style="width:200px; margin-top:20px;">Start Set</button>
+        </div>
+      </div>
+
+      <div class="guided-controls">
+        <div id="timeControls" class="row2">
+          <button class="btn-round btn-go half" id="startTimerBtn">Start</button>
+          <button class="btn-round btn-pause half" id="pauseTimerBtn" style="display:none;">Pause</button>
+        </div>
+        <div class="row2">
+          <button class="btn-ghost half" id="prevExBtn">&#8592; Previous</button>
+          <button class="btn-ghost half" id="nextExBtn">Skip &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="guidedComplete" class="complete-wrap" style="display:none;">
+      <div class="big" id="completeMsg">Session Complete</div>
+      <div class="small" id="completeSub">Logged to your history.</div>
+      <button class="btn-primary" id="backHomeBtn" style="width:220px;">Back to This Week</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Saved</div>
+</div>
+
+<script>
+/* =========================================================================
+   ARCHITECTURE NOTES (for future edits / phase additions)
+   - All workout content lives in DAYS / DAILY_MIN_MORNING / DAILY_MIN_EVENING / BENCHMARKS / PHASES below.
+   - To add Phase 2 or 3: build a new DAYS-style array for that phase, add a
+     phaseId to each day, and extend switchPhase() — no UI/timer code changes
+     needed. Placeholders are marked TODO below.
+   - Progress persists via window.storage under a single key 'progress-data'
+     (personal, not shared) when running as a Claude artifact — with an
+     automatic fallback to real browser localStorage when run standalone
+     (e.g. added to an iPhone home screen) — see loadProgress()/saveProgress().
+   - Screens are plain show/hide divs; state lives in the `state` object.
+   ========================================================================= */
+
+// ---------- DATA ----------
+const strengthExercises = [
+  {name:"Squat Pattern", instruction:"Back squat or goblet squat. Moderate weight, RPE 6–7 — controlled, not a grind.", kind:'reps', sets:3, target:"5 reps", restSec:90, info:{
+    description:"Bar or goblet load positioned, brace before descending, sit back and down keeping the weight mid-foot, drive through the floor to stand.",
+    focus:["Full brace (breath + core) before the descent","Knees track over toes, don't cave in","Hit the same depth every rep, not a moving target"],
+    avoid:["Letting the knees collapse inward on the drive up","Losing the brace/breath partway through the rep","Rushing the bottom position — control the descent"]
+  }},
+  {name:"Hip Hinge", instruction:"RDL or deadlift. Controlled tempo, RPE 6–7.", kind:'reps', sets:3, target:"5 reps", restSec:90, info:{
+    description:"Push the hips back first, soft knees, keep the bar/weight close to the legs, flat back throughout, then drive hips forward to finish.",
+    focus:["Hips move back before the knees bend","Neutral spine — no rounding under load","Bar/weight stays close, almost dragging the legs"],
+    avoid:["Rounding the lower back to chase depth","Turning it into a squat (too much knee bend, not enough hip hinge)","Yanking the weight up instead of a controlled pull"]
+  }},
+  {name:"Press", instruction:"Bench or overhead press, RPE 6–7.", kind:'reps', sets:3, target:"6 reps", restSec:90, info:{
+    description:"Set your base (feet/glutes for bench, full-body brace for overhead), lower with control, press in a straight, consistent bar path.",
+    focus:["Shoulder blades set and stable before you press","Full lockout at the top, every rep","Controlled eccentric — don't just drop the weight down"],
+    avoid:["Flaring elbows too wide on bench","Overarching the lower back on overhead press","Bouncing the weight off the chest/shoulders for momentum"]
+  }},
+  {name:"Pull", instruction:"Row or pull-up, RPE 6–7.", kind:'reps', sets:3, target:"8 reps", restSec:90, info:{
+    description:"Initiate the pull by driving the elbows back (row) or down (pull-up), keep the torso stable, squeeze at the top of the movement.",
+    focus:["Lead with the elbows, not the hands","Full stretch at the bottom, full squeeze at the top","Keep the torso from swinging or using momentum"],
+    avoid:["Using body English/momentum to move the weight","Shrugging instead of pulling with the back","Cutting the range short at the top or bottom"]
+  }},
+  {name:"Loaded Stretch Finisher", instruction:"Rotate weekly: Jefferson curl, deep split-squat iso hold, or weighted pancake stretch. Light load, full focus on range.", kind:'reps', sets:3, target:"8 reps", restSec:45, info:{
+    description:"Light load only — this is about controlled range, not weight. Move slowly into the stretch and let the load help you settle deeper, not force it.",
+    focus:["Slow, controlled tempo — several seconds down, not a drop","Breathe into the stretch rather than bracing against it","Same light load every time; progress comes from range, not weight"],
+    avoid:["Adding real strength-training weight here","Bouncing or forcing the end range","Skipping this because it feels like 'not real work' — this is the flexibility payoff"]
+  }},
+];
+
+const flexAExercises = [
+  {name:"Warm-Up", instruction:"Light bike or easy dynamic movement.", kind:'time', sets:1, target:300, restSec:0, info:{
+    description:"Anything that raises heart rate and body temperature slightly — easy bike spin or light movement. Not a workout, just a preface to one.",
+    focus:["Easy, conversational effort","Gradually increase range of motion as you go"],
+    avoid:["Starting mobility work cold","Turning the warm-up into a cardio session"]
+  }},
+  {name:"CARs", instruction:"Slow, controlled rotations — hips, shoulders, ankles, spine. 2 reps each direction, each joint.", kind:'time', sets:1, target:180, restSec:0, info:{
+    description:"Move each joint through its full available circle as slowly and deliberately as possible, isolating just that joint.",
+    focus:["Slow is the point — speed defeats the purpose","Keep the rest of the body still, isolate the joint moving","Go to the edge of range without pain, not force through it"],
+    avoid:["Rushing through reps","Letting nearby joints compensate/move instead","Pushing into sharp pain to gain range"]
+  }},
+  {name:"Deep Squat Hold", instruction:"Sink into the bottom of a bodyweight squat, chest up, breathe slowly into the position.", kind:'time', sets:3, target:50, restSec:30, info:{
+    description:"Sink to the bottom of a bodyweight squat, heels down if possible, chest tall, and just breathe in the position.",
+    focus:["Weight through the whole foot, not just the toes","Relax into the position on the exhale","Chest stays up, not collapsed forward"],
+    avoid:["Letting heels lift to fake the depth","Holding your breath instead of breathing into it","Bouncing instead of settling"]
+  }},
+  {name:"Cossack Squat", instruction:"Controlled tempo, both sides.", kind:'reps', sets:3, target:"6/side", restSec:30, info:{
+    description:"Wide stance, shift your weight into one bent leg while the other leg extends straight, heel down, then shift back to center.",
+    focus:["Keep the extended leg's heel down as long as possible","Chest stays upright, don't dump forward","Control the transition, don't fall into it"],
+    avoid:["Letting the straight-leg heel pop up","Rushing the side-to-side transition","Rounding the back to reach lower"]
+  }},
+  {name:"Jefferson Curl", instruction:"Light load only (empty bar or light DB). Slow eccentric.", kind:'reps', sets:3, target:"8 reps", restSec:30, info:{
+    description:"Standing on a slight platform if available, round the spine forward one vertebra at a time from the top down, then reverse just as slowly to stand.",
+    focus:["Sequential movement — segment by segment, not all at once","Very light load, this is a stretch not a lift","Slow, even tempo on both the way down and up"],
+    avoid:["Using real strength-training weight","Rushing or free-falling into the bottom","Rounding the neck aggressively — keep it soft, not forced"]
+  }},
+  {name:"90/90 Hip Switches", instruction:"Smooth, controlled switches.", kind:'reps', sets:3, target:"8/side", restSec:20, info:{
+    description:"Sit with both knees bent at 90°, one leg in front and one to the side, then rotate through to switch which leg is in front.",
+    focus:["Keep the transition controlled, not a flop from side to side","Try to keep both sit bones grounded through the switch","Move from the hips, not by using hands to push around"],
+    avoid:["Using your hands to muscle through the switch","Rushing the transition","Ignoring a tighter side — spend a little extra time there"]
+  }},
+  {name:"Ankle Loaded Stretch", instruction:"Knee-over-toe hold against a wall, both sides.", kind:'time', sets:3, target:45, restSec:20, info:{
+    description:"Knee drives forward over the toes toward (or past) a wall, heel staying down, to load ankle dorsiflexion.",
+    focus:["Heel stays glued to the floor","Knee tracks toward the 2nd/3rd toe, not caving in","Gentle constant pressure, not bouncing into it"],
+    avoid:["Letting the heel lift to fake more range","Bouncing into the end range","Only doing the 'good' ankle and skipping the tight one"]
+  }},
+  {name:"Thoracic Rotation Flow", instruction:"Open book or quadruped rotations.", kind:'reps', sets:2, target:"8/side", restSec:20, info:{
+    description:"From quadruped or side-lying, thread one arm under the body then open back up toward the ceiling, rotating through the upper back.",
+    focus:["Let the eyes/head follow the rotating hand","Keep the hips still — isolate the rotation to the t-spine","Full range each direction, not a small wiggle"],
+    avoid:["Rotating from the lower back/hips instead of the upper back","Rushing through without pausing at end range","Holding your breath through the rotation"]
+  }},
+];
+
+const cardioExercises = [
+  {name:"Zone 2 Cardio", instruction:"Bike or run, conversational pace. RPE 3–4/10 — hold a sentence, not a paragraph.", kind:'time', sets:1, target:1800, restSec:0, info:{
+    description:"Steady aerobic effort you could sustain for a long time — conversational pace, nasal breathing if possible.",
+    focus:["Consistent, even effort the entire time","Should feel almost too easy — that's correct for this phase","Talk test: full sentences without gasping"],
+    avoid:["Creeping intensity up into intervals — save that for the cardio-priority phase","Starting too hard and fading","Obsessing over pace — this is about effort, not speed"]
+  }},
+  {name:"Mobility Cooldown", instruction:"Hip flexor + calf stretch, both sides.", kind:'time', sets:1, target:300, restSec:0, info:{
+    description:"A few minutes of easy static stretching for whatever just worked hardest — hip flexors and calves after bike/run.",
+    focus:["Relaxed breathing, not forcing the stretch","Hold long enough to actually settle in (30–45s+)"],
+    avoid:["Skipping this because the workout 'is basically done'","Bouncing in the stretch"]
+  }},
+];
+
+const flexBExercises = [
+  {name:"Foam Roll — Full Body", instruction:"Quads, IT band, lats, t-spine, calves. Go slow on any hot spots.", kind:'time', sets:1, target:720, restSec:0, info:{
+    description:"Slow rolling pressure over the target muscle groups, pausing on tender spots rather than rolling straight through them.",
+    focus:["Slow pace — a body part per 30–45 seconds, not a quick pass","Pause and breathe on any tender spot for a few extra seconds","Relax the muscle being rolled, don't tense against it"],
+    avoid:["Rolling directly over joints (knees, low back) — stick to muscle bellies","Rushing through just to say it's done","Bracing against the pressure instead of relaxing into it"]
+  }},
+  {name:"Trigger Point Work", instruction:"Lacrosse ball or similar — focus on your tightest spots today.", kind:'time', sets:1, target:420, restSec:0, info:{
+    description:"A firmer, more targeted tool (ball) on a specific tight spot, pausing rather than rolling through quickly.",
+    focus:["Find the actual tender spot, not just the general area","Breathe and let the spot soften rather than grinding into it","A little goes a long way — you don't need max pressure"],
+    avoid:["Pressing directly on a nerve-sensitive area (numbness/tingling = back off)","Grinding on the same spot too aggressively or too long"]
+  }},
+  {name:"Butterfly / Frog", instruction:"Yin hold. Relaxed breathing, let the hips open.", kind:'time', sets:1, target:180, restSec:0, info:{
+    description:"Yin-style long hold for the hips/groin — settle in and let gravity and time do the work rather than actively stretching harder.",
+    focus:["Relax completely into the hold, this is passive not active","Slow, deep breathing the entire hold","Let intensity ease as you settle in — don't chase a bigger stretch"],
+    avoid:["Bouncing or pulsing in the position","Holding tension in the shoulders/jaw while your hips are 'working'"]
+  }},
+  {name:"Sphinx / Seal", instruction:"Gentle lumbar extension.", kind:'time', sets:1, target:180, restSec:0, info:{
+    description:"Gentle prone back extension, propped on forearms (sphinx) or hands (seal), letting the lower back and abdomen lengthen.",
+    focus:["Keep it gentle — this is not a max-effort backbend","Relax the glutes rather than squeezing them","Breathe into the belly, expanding against the floor"],
+    avoid:["Pushing into sharp lower-back pain (this should feel like release, not strain)","Shrugging the shoulders up toward the ears"]
+  }},
+  {name:"Thread-the-Needle", instruction:"T-spine and shoulders, both sides.", kind:'time', sets:2, target:180, restSec:10, info:{
+    description:"From quadruped, thread one arm under the body and rest the shoulder/head down, opening the opposite side of the upper back.",
+    focus:["Let the head/neck relax down rather than holding it up","Breathe into the stretched side of the upper back","Keep the hips level, don't let them shift with the reach"],
+    avoid:["Forcing extra rotation by pulling with the free hand","Rushing — this one wants time to actually work"]
+  }},
+  {name:"Half-Split / Forward Fold", instruction:"Hamstrings, relaxed and slow.", kind:'time', sets:1, target:180, restSec:0, info:{
+    description:"Front leg straight, hinge from the hips over it, letting the hamstring lengthen passively.",
+    focus:["Hinge from the hips, keep the back relatively flat rather than rounding to force depth","Relax the front leg's quad rather than actively pushing the knee straight","Let gravity deepen it over the hold, don't force it early"],
+    avoid:["Rounding the back hard to reach further","Locking the knee out aggressively/hyperextending it"]
+  }},
+  {name:"Puppy Pose / Lat Stretch", instruction:"Shoulders and lats.", kind:'time', sets:1, target:180, restSec:0, info:{
+    description:"Hips stacked over knees, walk the hands forward and melt the chest toward the floor, opening the shoulders and lats.",
+    focus:["Keep hips over knees rather than sitting back toward the heels","Let the chest and armpits sink, don't just reach with the arms","Relax the neck, forehead can rest down"],
+    avoid:["Sitting hips too far back into more of a child's pose (different stretch)","Forcing the chest down through shoulder pain"]
+  }},
+  {name:"Supine Relaxation", instruction:"Just breathe. Let the nervous system downshift.", kind:'time', sets:1, target:300, restSec:0, info:{
+    description:"Lying on your back, no active stretching — just slow breathing to let your nervous system shift out of 'work' mode.",
+    focus:["Slow exhales longer than the inhale","Let the whole body go heavy into the floor"],
+    avoid:["Checking your phone/rushing this — the downshift is the point","Holding tension anywhere out of habit (jaw, shoulders)"]
+  }},
+];
+
+const restExercises = [
+  {name:"Light Flow + Rolling", instruction:"Whatever feels good today — this is recovery, not a session to push.", kind:'time', sets:1, target:600, restSec:0, info:{
+    description:"Whatever loose movement and rolling feels good today — no structure required, just don't skip it entirely.",
+    focus:["Follow what feels tight/restricted today rather than a fixed routine","Keep effort very low — this is recovery"],
+    avoid:["Turning this into a real workout","Skipping it because 'nothing hurts' — a little goes a long way for recovery"]
+  }},
+];
+
+const DAYS = [
+  {id:1, label:"Strength", sub:"Maintenance — Full Body", type:'strength', duration:"45–55 min", exercises: strengthExercises},
+  {id:2, label:"Flexibility · Session A", sub:"Dynamic / Loaded Mobility", type:'flex', duration:"45–60 min", exercises: flexAExercises},
+  {id:3, label:"Cardio", sub:"Maintenance — Zone 2", type:'cardio', duration:"30–45 min", exercises: cardioExercises},
+  {id:4, label:"Strength", sub:"Maintenance — Full Body", type:'strength', duration:"45–55 min", exercises: strengthExercises},
+  {id:5, label:"Flexibility · Session B", sub:"Yin / Fascial Release", type:'flex', duration:"45–60 min", exercises: flexBExercises},
+  {id:6, label:"Cardio", sub:"Maintenance + Cooldown", type:'cardio', duration:"30–45 min", exercises: cardioExercises},
+  {id:7, label:"Rest", sub:"Active Recovery", type:'rest', duration:"10–15 min", exercises: restExercises},
+];
+// TODO Phase 2 (Strength Priority, wks 7-12): add DAYS_PHASE2 array here.
+// TODO Phase 3 (Cardio Priority, wks 13-18): add DAYS_PHASE3 array here.
+
+const DAILY_MIN_MORNING = {id:'daily-min-morning', label:"Morning Flow", sub:"Anytime — 5 min", type:'flex', duration:"", exercises:[
+  {name:"Morning Flow", instruction:"Hips, ankles, t-spine — pick 3–4 light movements to open things up.", kind:'time', sets:1, target:300, restSec:0, info:{
+    description:"A quick, light run-through of a few mobility drills to open up before the day starts. Not a stretching session — brief and dynamic.",
+    focus:["Pick 3–4 movements and keep moving through them","Light effort — this should feel easy, not like training"],
+    avoid:["Turning it into a full workout","Skipping it on a 'no training day' — this one's meant for every day"]
+  }, detail:[
+    "Ankle circles + rocks — 30–45s per side",
+    "Hip circles or leg swings (front-to-back, side-to-side)",
+    "Cat–Cow flow — 8–10 slow reps",
+    "World's Greatest Stretch — 2–3 reps/side",
+    "Thoracic open-books or slow arm circles",
+    "Pick 3–4 of these, not all — rotate daily and keep it loose, not a workout",
+  ]},
+]};
+
+const DAILY_MIN_EVENING = {id:'daily-min-evening', label:"Evening Rolling", sub:"Anytime — 5 min", type:'flex', duration:"", exercises:[
+  {name:"Evening Rolling", instruction:"Roll or ball out whatever's tight today — usual suspects: quads, IT band, lats, calves.", kind:'time', sets:1, target:300, restSec:0, info:{
+    description:"Self-myofascial release on whatever's tight from the day, plus a short breathing wind-down before bed.",
+    focus:["Go by feel — target today's tightest spots, not a fixed list","Finish with the slow breathing — that's part of the point, not optional"],
+    avoid:["Rolling aggressively right before you need to relax for sleep","Skipping the breathing portion"]
+  }, detail:[
+    "Foam roll quads, IT band, calves — 30–45s each",
+    "Lacrosse or therapy ball on glutes, lats, pecs, or feet",
+    "Prioritize whatever feels tightest from that day's training",
+    "Finish with ~60s of slow, diaphragmatic breathing to downshift before bed",
+  ]},
+]};
+
+const BENCHMARKS = [
+  "Overhead Squat (depth / notes)",
+  "Toe-Touch (fingers to floor)",
+  "Thomas Test (hip flexor length)",
+  "Active Straight-Leg Raise",
+  "Shoulder Flexion / Rotation ROM",
+  "Ankle Dorsiflexion (knee-to-wall, cm)",
+];
+
+const PHASES = [
+  {id:1, name:"Flexibility & Fascial Mobility", weeks:"Weeks 1–6", status:'active', desc:"Priority: Flexibility. Strength & Cardio in maintenance. Builds the range of motion the next phase will load."},
+  {id:2, name:"Strength", weeks:"Weeks 7–12", status:'locked', desc:"Priority: Strength — exploiting the new ranges Phase 1 builds. Flexibility & Cardio shift to maintenance."},
+  {id:3, name:"Cardio", weeks:"Weeks 13–18", status:'locked', desc:"Priority: Cardio — exploiting mechanics/economy gains from mobility and power gains from strength. Strength & Flexibility shift to maintenance."},
+];
+
+// ---------- STATE ----------
+let state = {
+  currentWeek: 1,
+  totalWeeks: 6,
+  completedSessions: [], // {date, label, type, day} — history log, append-only
+  completedDays: {}, // "week-dayId" -> true/false — toggleable status for the 7-day plan
+  dailyMinDates: {}, // "YYYY-MM-DD-dailyMinId" -> true/false — toggleable status for Morning Flow / Evening Rolling, tracked separately
+  benchmarks: {}, // name -> {w0, w6}
+  lastWeights: {}, // exercise name -> most recent weight entered, used to preload future sessions
+};
+
+function dayKey(week, dayId){ return week+'-'+dayId; }
+function isDayComplete(week, dayId){ return !!state.completedDays[dayKey(week, dayId)]; }
+function todayKey(){ return new Date().toISOString().slice(0,10); }
+function isDailyMinId(id){ return id === 'daily-min-morning' || id === 'daily-min-evening'; }
+
+// Resolves which store/key a given "day-like" object (a DAYS entry, DAILY_MIN_MORNING, or DAILY_MIN_EVENING) uses for its toggle.
+function completionKeyFor(day){
+  if(isDailyMinId(day.id)) return {store:'dailyMinDates', key: todayKey()+'-'+day.id};
+  return {store:'completedDays', key: dayKey(state.currentWeek, day.id)};
+}
+function isDetailComplete(day){
+  const k = completionKeyFor(day);
+  return !!state[k.store][k.key];
+}
+function toggleDetailComplete(day){
+  const k = completionKeyFor(day);
+  state[k.store][k.key] = !state[k.store][k.key];
+  saveProgress();
+  return state[k.store][k.key];
+}
+
+let guided = null; // active guided session state
+let timerInterval = null;
+
+// ---------- STORAGE ----------
+// Uses Claude's window.storage when this runs inside a Claude artifact.
+// Falls back to real browser localStorage when run standalone (e.g. saved
+// to an iPhone home screen and opened outside claude.ai), so progress still
+// persists either way.
+const appStorage = (window.storage) ? window.storage : {
+  async get(key){
+    try{
+      const raw = localStorage.getItem(key);
+      return raw !== null ? {key, value: raw} : null;
+    }catch(e){ return null; }
+  },
+  async set(key, value){
+    try{
+      localStorage.setItem(key, value);
+      return {key, value};
+    }catch(e){ return null; }
+  }
+};
+
+async function loadProgress(){
+  try{
+    const res = await appStorage.get('progress-data', false);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      state = Object.assign(state, parsed);
+    }
+  }catch(e){ /* no saved data yet, defaults stand */ }
+  render();
+}
+
+async function saveProgress(){
+  try{
+    await appStorage.set('progress-data', JSON.stringify(state), false);
+  }catch(e){ console.error('Storage save failed', e); }
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1400);
+}
+
+// ---------- HELPERS ----------
+function fmtTime(sec){
+  const m = Math.floor(sec/60).toString().padStart(2,'0');
+  const s = Math.floor(sec%60).toString().padStart(2,'0');
+  return m+':'+s;
+}
+function beep(freq){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.frequency.value = freq || 880;
+    o.connect(g); g.connect(ctx.destination);
+    g.gain.setValueAtTime(0.16, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.35);
+    o.start(); o.stop(ctx.currentTime+0.35);
+  }catch(e){}
+}
+
+// ---------- RENDER: THIS WEEK ----------
+function render(){
+  document.getElementById('weekLabel').textContent = 'WEEK '+state.currentWeek+' OF '+state.totalWeeks;
+
+  const list = document.getElementById('dayList');
+  list.innerHTML = '';
+  DAYS.forEach(day=>{
+    const doneToday = isDayComplete(state.currentWeek, day.id);
+    const row = document.createElement('div');
+    row.className = 'daycard' + (doneToday ? ' done' : '');
+    row.innerHTML = `
+      <div class="tag type-${day.type}"></div>
+      <div class="info">
+        <div class="day-num">DAY ${day.id}${doneToday ? ' · DONE' : ''}</div>
+        <div class="day-label">${day.label}</div>
+        <div class="day-sub">${day.sub}</div>
+      </div>
+      <div class="day-dur">${day.duration}</div>
+    `;
+    row.addEventListener('click', ()=>openDayDetail(day));
+    list.appendChild(row);
+  });
+
+  updateDailyMinCards();
+  renderHistory();
+  renderBenchmarks();
+  renderRoadmap();
+}
+function updateDailyMinCards(){
+  const today = todayKey();
+  const morningDone = !!state.dailyMinDates[today+'-daily-min-morning'];
+  document.getElementById('dailyMinMorningCard').classList.toggle('done', morningDone);
+  document.getElementById('dailyMinMorningSub').textContent = morningDone ? '5 min · mobility · Done today' : '5 min · mobility';
+
+  const eveningDone = !!state.dailyMinDates[today+'-daily-min-evening'];
+  document.getElementById('dailyMinEveningCard').classList.toggle('done', eveningDone);
+  document.getElementById('dailyMinEveningSub').textContent = eveningDone ? '5 min · fascial release · Done today' : '5 min · fascial release';
+}
+
+document.getElementById('weekPrev').addEventListener('click', ()=>{
+  if(state.currentWeek>1){ state.currentWeek--; render(); saveProgress(); }
+});
+document.getElementById('weekNext').addEventListener('click', ()=>{
+  if(state.currentWeek<state.totalWeeks){ state.currentWeek++; render(); saveProgress(); }
+});
+
+document.getElementById('dailyMinMorningCard').addEventListener('click', ()=> openDayDetail(DAILY_MIN_MORNING));
+document.getElementById('dailyMinEveningCard').addEventListener('click', ()=> openDayDetail(DAILY_MIN_EVENING));
+
+// ---------- TABS ----------
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById('screen-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ---------- DAY DETAIL ----------
+let activeDay = null;
+function openDayDetail(day){
+  activeDay = day;
+  document.getElementById('ddTitle').textContent = (typeof day.id === 'number') ? 'Day '+day.id+' · '+day.label : day.label;
+  document.getElementById('ddSub').textContent = day.duration ? day.sub+' · '+day.duration : day.sub;
+  const exList = document.getElementById('ddExList');
+  exList.innerHTML = '';
+  day.exercises.forEach(ex=>{
+    const targetStr = ex.kind==='time' ? (ex.sets>1 ? ex.sets+' x '+fmtTime(ex.target) : fmtTime(ex.target)) : (ex.sets+' x '+ex.target);
+    const row = document.createElement('div');
+    row.className = 'exlist-row';
+    let detailHtml = '';
+    if(ex.detail && ex.detail.length){
+      detailHtml = '<ul class="ex-detail-list">' + ex.detail.map(d=>'<li>'+d+'</li>').join('') + '</ul>';
+    }
+    let lastWeightHtml = '';
+    if(ex.kind==='reps' && state.lastWeights[ex.name]){
+      lastWeightHtml = '<div class="ex-last-weight">Last weight: '+state.lastWeights[ex.name]+'</div>';
+    }
+    row.innerHTML = `
+      <div class="exlist-row-top">
+        <span class="exname">${ex.name}</span>
+        <div class="ex-right">
+          <span class="extarget">${targetStr}</span>
+          <button class="info-btn" aria-label="How to perform ${ex.name}">i</button>
+        </div>
+      </div>
+      ${lastWeightHtml}
+      ${detailHtml}
+    `;
+    row.querySelector('.info-btn').addEventListener('click', ()=> openExerciseInfo(ex));
+    exList.appendChild(row);
+  });
+  updateCompleteToggleUI();
+  document.getElementById('dayDetailOverlay').classList.add('active');
+}
+function openExerciseInfo(ex){
+  document.getElementById('eiTitle').textContent = ex.name;
+  const subEl = document.getElementById('eiSub');
+  const lastWeight = (ex.kind==='reps') ? state.lastWeights[ex.name] : null;
+  if(lastWeight !== undefined && lastWeight !== null && lastWeight !== ''){
+    subEl.textContent = 'Last weight used: '+lastWeight;
+    subEl.style.display = 'block';
+  } else {
+    subEl.textContent = '';
+    subEl.style.display = 'none';
+  }
+  const info = ex.info || {};
+  document.getElementById('eiDescription').textContent = info.description || 'No description available yet.';
+  document.getElementById('eiFocusList').innerHTML = (info.focus||[]).map(f=>'<li>'+f+'</li>').join('');
+  document.getElementById('eiAvoidList').innerHTML = (info.avoid||[]).map(a=>'<li>'+a+'</li>').join('');
+  document.getElementById('exerciseInfoOverlay').classList.add('active');
+}
+document.getElementById('closeExerciseInfo').addEventListener('click', ()=>{
+  document.getElementById('exerciseInfoOverlay').classList.remove('active');
+});
+function updateCompleteToggleUI(){
+  const isOn = isDetailComplete(activeDay);
+  document.getElementById('completeToggle').classList.toggle('on', isOn);
+  const isDaily = isDailyMinId(activeDay.id);
+  document.getElementById('toggleLabel').textContent = isOn
+    ? (isDaily ? 'Completed today' : 'Completed this week')
+    : (isDaily ? 'Not completed today' : 'Not completed');
+}
+document.getElementById('closeDayDetail').addEventListener('click', ()=>{
+  document.getElementById('dayDetailOverlay').classList.remove('active');
+});
+document.getElementById('startGuidedBtn').addEventListener('click', ()=>{
+  document.getElementById('dayDetailOverlay').classList.remove('active');
+  startGuidedSession({label:activeDay.label, sub:activeDay.sub, type:activeDay.type, exercises:activeDay.exercises, dayId:activeDay.id});
+});
+document.getElementById('completeToggle').addEventListener('click', ()=>{
+  const isOn = toggleDetailComplete(activeDay);
+  updateCompleteToggleUI();
+  render();
+  showToast(isOn ? 'Marked complete' : 'Marked not complete');
+});
+
+function logSession(label, type, dayId, weights){
+  state.completedSessions.unshift({
+    date: new Date().toISOString(),
+    label, type, day: dayId, week: state.currentWeek, weights: weights || null
+  });
+  saveProgress();
+  render();
+}
+
+// ---------- GUIDED SESSION ----------
+function startGuidedSession(session){
+  guided = {
+    session,
+    exIndex: 0,
+    setIndex: 0,
+    mode: 'ready', // ready | running | rest | done
+    timeLeft: 0,
+    running: false,
+    allWeights: {}, // exercise name -> array of per-set weights for this session
+  };
+  document.getElementById('guidedTitle').textContent = session.label;
+  document.getElementById('guidedActive').style.display = 'block';
+  document.getElementById('guidedComplete').style.display = 'none';
+  buildSegments();
+  loadExercise();
+  document.getElementById('guidedOverlay').classList.add('active');
+}
+
+function buildSegments(){
+  const row = document.getElementById('segRow');
+  row.innerHTML = '';
+  guided.session.exercises.forEach((ex,i)=>{
+    const seg = document.createElement('div');
+    seg.className = 'seg';
+    seg.innerHTML = '<div class="fill" id="seg-fill-'+i+'"></div>';
+    row.appendChild(seg);
+  });
+  updateSegments();
+}
+function updateSegments(){
+  guided.session.exercises.forEach((ex,i)=>{
+    const fill = document.getElementById('seg-fill-'+i);
+    if(!fill) return;
+    if(i < guided.exIndex) fill.style.width = '100%';
+    else if(i === guided.exIndex){
+      const ex2 = ex;
+      const setFrac = ex2.sets>1 ? (guided.setIndex/ex2.sets) : 0;
+      fill.style.width = (setFrac*100)+'%';
+    } else fill.style.width = '0%';
+  });
+}
+
+function currentExercise(){ return guided.session.exercises[guided.exIndex]; }
+
+// Returns (creating if needed) this session's per-set weight array for an exercise,
+// preloaded from the last weight ever entered for that exercise name.
+function getWeightsArrayFor(ex){
+  if(!guided.allWeights[ex.name]){
+    const last = state.lastWeights[ex.name];
+    guided.allWeights[ex.name] = new Array(ex.sets).fill(last !== undefined ? last : '');
+  }
+  return guided.allWeights[ex.name];
+}
+
+function loadExercise(startSetIndex){
+  clearInterval(timerInterval);
+  guided.setIndex = (typeof startSetIndex === 'number') ? startSetIndex : 0;
+  guided.mode = 'ready';
+  const ex = currentExercise();
+  document.getElementById('exIndex').textContent = 'EXERCISE '+(guided.exIndex+1)+' OF '+guided.session.exercises.length;
+  document.getElementById('exName').textContent = ex.name;
+  document.getElementById('exInstruction').textContent = ex.instruction;
+  document.getElementById('restMode').style.display = 'none';
+
+  if(ex.kind==='time'){
+    document.getElementById('timeMode').style.display = 'block';
+    document.getElementById('repsMode').style.display = 'none';
+    document.getElementById('timeControls').style.display = 'flex';
+    guided.timeLeft = ex.target;
+    document.getElementById('setLabelTime').textContent = ex.sets>1 ? ('SET '+(guided.setIndex+1)+' OF '+ex.sets) : 'GO WHEN READY';
+    document.getElementById('timerDisplay').textContent = fmtTime(guided.timeLeft);
+    document.getElementById('startTimerBtn').style.display = 'block';
+    document.getElementById('startTimerBtn').textContent = 'Start';
+    document.getElementById('pauseTimerBtn').style.display = 'none';
+  } else {
+    document.getElementById('timeMode').style.display = 'none';
+    document.getElementById('repsMode').style.display = 'block';
+    document.getElementById('timeControls').style.display = 'none';
+    document.getElementById('startSetBtn').style.display = 'block';
+    document.getElementById('setLabelReps').textContent = 'SET '+(guided.setIndex+1)+' OF '+ex.sets;
+    document.getElementById('repsTarget').textContent = 'Target: '+ex.target;
+    const wArr = getWeightsArrayFor(ex);
+    document.getElementById('weightInput').value = (wArr[guided.setIndex] !== undefined && wArr[guided.setIndex] !== '') ? wArr[guided.setIndex] : '';
+  }
+  updateSegments();
+}
+
+// -- time mode controls --
+document.getElementById('startTimerBtn').addEventListener('click', ()=>{
+  guided.mode = 'running';
+  document.getElementById('startTimerBtn').style.display = 'none';
+  document.getElementById('pauseTimerBtn').style.display = 'block';
+  document.getElementById('pauseTimerBtn').textContent = 'Pause';
+  runTimerTick();
+});
+document.getElementById('pauseTimerBtn').addEventListener('click', ()=>{
+  if(guided.mode==='running'){
+    guided.mode = 'paused';
+    clearInterval(timerInterval);
+    document.getElementById('pauseTimerBtn').textContent = 'Resume';
+  } else {
+    guided.mode = 'running';
+    document.getElementById('pauseTimerBtn').textContent = 'Pause';
+    runTimerTick();
+  }
+});
+function runTimerTick(){
+  clearInterval(timerInterval);
+  timerInterval = setInterval(()=>{
+    guided.timeLeft--;
+    document.getElementById('timerDisplay').textContent = fmtTime(Math.max(guided.timeLeft,0));
+    if(guided.timeLeft<=0){
+      clearInterval(timerInterval);
+      beep(880);
+      onSetFinished();
+    }
+  }, 1000);
+}
+
+// -- reps mode controls --
+document.getElementById('startSetBtn').addEventListener('click', ()=>{
+  onSetFinished();
+});
+document.getElementById('weightInput').addEventListener('input', (e)=>{
+  const ex = currentExercise();
+  if(ex.kind !== 'reps') return;
+  const wArr = getWeightsArrayFor(ex);
+  wArr[guided.setIndex] = e.target.value;
+  state.lastWeights[ex.name] = e.target.value;
+});
+document.getElementById('weightInput').addEventListener('change', ()=>{
+  saveProgress();
+});
+
+function onSetFinished(){
+  const ex = currentExercise();
+  guided.setIndex++;
+  updateSegments();
+  const isLastSet = guided.setIndex >= ex.sets;
+  const proceed = ()=>{
+    if(!isLastSet){
+      beginNextSet(ex);
+    } else if(guided.exIndex < guided.session.exercises.length-1){
+      advanceExercise();
+    } else {
+      finishSession();
+    }
+  };
+  if(ex.restSec>0){
+    startRest(ex.restSec, proceed);
+  } else {
+    proceed();
+  }
+}
+function beginNextSet(ex){
+  if(ex.kind==='time'){
+    guided.timeLeft = ex.target;
+    document.getElementById('setLabelTime').textContent = 'SET '+(guided.setIndex+1)+' OF '+ex.sets;
+    document.getElementById('timerDisplay').textContent = fmtTime(guided.timeLeft);
+    guided.mode = 'ready';
+    document.getElementById('startTimerBtn').style.display = 'block';
+    document.getElementById('startTimerBtn').textContent = 'Start';
+    document.getElementById('pauseTimerBtn').style.display = 'none';
+  } else {
+    document.getElementById('setLabelReps').textContent = 'SET '+(guided.setIndex+1)+' OF '+ex.sets;
+    const wArr = getWeightsArrayFor(ex);
+    document.getElementById('weightInput').value = (wArr[guided.setIndex] !== undefined && wArr[guided.setIndex] !== '') ? wArr[guided.setIndex] : '';
+  }
+}
+let restState = {left:0, running:false, onDone:null};
+
+function startRest(seconds, onDone){
+  document.getElementById('restMode').style.display = 'block';
+  document.getElementById('timeControls').style.display = 'none';
+  document.getElementById('startSetBtn').style.display = 'none';
+  restState.left = seconds;
+  restState.onDone = onDone;
+  restState.running = true;
+  document.getElementById('restDisplay').textContent = fmtTime(restState.left);
+  const pauseBtn = document.getElementById('pauseRestBtn');
+  pauseBtn.textContent = 'Pause';
+  pauseBtn.classList.add('btn-danger');
+  pauseBtn.classList.remove('btn-success');
+  runRestTick();
+}
+function runRestTick(){
+  clearInterval(timerInterval);
+  timerInterval = setInterval(()=>{
+    restState.left--;
+    document.getElementById('restDisplay').textContent = fmtTime(Math.max(restState.left,0));
+    if(restState.left<=0){
+      clearInterval(timerInterval);
+      finishRest(restState.onDone);
+    }
+  }, 1000);
+}
+document.getElementById('pauseRestBtn').addEventListener('click', ()=>{
+  const pauseBtn = document.getElementById('pauseRestBtn');
+  if(restState.running){
+    restState.running = false;
+    clearInterval(timerInterval);
+    pauseBtn.textContent = 'Resume';
+    pauseBtn.classList.remove('btn-danger');
+    pauseBtn.classList.add('btn-success');
+  } else {
+    restState.running = true;
+    pauseBtn.textContent = 'Pause';
+    pauseBtn.classList.remove('btn-success');
+    pauseBtn.classList.add('btn-danger');
+    runRestTick();
+  }
+});
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  clearInterval(timerInterval);
+  finishRest(restState.onDone);
+});
+function finishRest(onDone){
+  document.getElementById('restMode').style.display = 'none';
+  const ex = currentExercise();
+  if(ex.kind==='time'){ document.getElementById('timeControls').style.display = 'flex'; }
+  else { document.getElementById('startSetBtn').style.display = 'block'; }
+  beep(660);
+  onDone();
+}
+function advanceExercise(){
+  guided.exIndex++;
+  loadExercise();
+}
+document.getElementById('nextExBtn').addEventListener('click', ()=>{
+  clearInterval(timerInterval);
+  const ex = currentExercise();
+  if(guided.setIndex < ex.sets-1){
+    loadExercise(guided.setIndex+1);
+  } else if(guided.exIndex < guided.session.exercises.length-1){
+    advanceExercise();
+  } else {
+    finishSession();
+  }
+});
+document.getElementById('prevExBtn').addEventListener('click', ()=>{
+  clearInterval(timerInterval);
+  if(guided.setIndex>0){
+    loadExercise(guided.setIndex-1);
+  } else if(guided.exIndex>0){
+    guided.exIndex--;
+    loadExercise(0);
+  }
+});
+
+function finishSession(){
+  clearInterval(timerInterval);
+  document.getElementById('guidedActive').style.display = 'none';
+  document.getElementById('guidedComplete').style.display = 'flex';
+  document.getElementById('completeMsg').textContent = 'Session Complete';
+  document.getElementById('completeSub').textContent = guided.session.label+' — logged to your history.';
+  if(isDailyMinId(guided.session.dayId)){
+    state.dailyMinDates[todayKey()+'-'+guided.session.dayId] = true;
+  } else {
+    state.completedDays[dayKey(state.currentWeek, guided.session.dayId)] = true;
+  }
+  logSession(guided.session.label, guided.session.type, guided.session.dayId, guided.allWeights);
+}
+document.getElementById('backHomeBtn').addEventListener('click', ()=>{
+  document.getElementById('guidedOverlay').classList.remove('active');
+});
+document.getElementById('exitGuided').addEventListener('click', ()=>{
+  clearInterval(timerInterval);
+  document.getElementById('guidedOverlay').classList.remove('active');
+});
+
+// ---------- HISTORY ----------
+function renderHistory(){
+  const el = document.getElementById('historyList');
+  if(state.completedSessions.length===0){
+    el.innerHTML = '<div class="empty-state">No sessions logged yet. Finish a workout and it shows up here.</div>';
+    return;
+  }
+  el.innerHTML = '';
+  state.completedSessions.slice(0,60).forEach(s=>{
+    const d = new Date(s.date);
+    const row = document.createElement('div');
+    row.className = 'hist-row';
+    row.style.cursor = 'pointer';
+    row.innerHTML = `
+      <div class="hist-dot type-${s.type}"></div>
+      <div style="flex:1;">
+        <div class="hist-day">${s.label}</div>
+        <div class="hist-date">${d.toLocaleDateString(undefined,{month:'short',day:'numeric'})} · Week ${s.week||'—'}</div>
+      </div>
+    `;
+    row.addEventListener('click', ()=> openHistoryDetail(s));
+    el.appendChild(row);
+  });
+}
+function openHistoryDetail(session){
+  const d = new Date(session.date);
+  document.getElementById('hdTitle').textContent = session.label;
+  document.getElementById('hdSub').textContent = d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}) + (session.week ? ' · Week '+session.week : '');
+  const body = document.getElementById('hdBody');
+  const weights = session.weights || {};
+  const names = Object.keys(weights).filter(name => weights[name].some(w => w!==''&&w!==undefined&&w!==null));
+  if(names.length===0){
+    body.innerHTML = '<div class="empty-state">No weights logged for this session.</div>';
+  } else {
+    body.innerHTML = names.map(name=>{
+      const arr = weights[name];
+      const setsStr = arr.map((w,i)=>'Set '+(i+1)+': '+((w!==''&&w!==undefined&&w!==null) ? w : '—')).join(' &nbsp;·&nbsp; ');
+      return `<div class="exlist-row"><div class="exname" style="margin-bottom:6px;">${name}</div><div class="extarget" style="font-size:12px;">${setsStr}</div></div>`;
+    }).join('');
+  }
+  document.getElementById('historyDetailOverlay').classList.add('active');
+}
+document.getElementById('closeHistoryDetail').addEventListener('click', ()=>{
+  document.getElementById('historyDetailOverlay').classList.remove('active');
+});
+
+// ---------- BENCHMARKS ----------
+function renderBenchmarks(){
+  const el = document.getElementById('benchList');
+  el.innerHTML = '';
+  BENCHMARKS.forEach(name=>{
+    const val = state.benchmarks[name] || {w0:'', w6:''};
+    const row = document.createElement('div');
+    row.className = 'bench-row';
+    row.innerHTML = `
+      <div class="bench-name">${name}</div>
+      <div class="bench-inputs">
+        <input type="text" placeholder="Week 0" value="${val.w0}" data-name="${name}" data-slot="w0">
+        <input type="text" placeholder="Week 6" value="${val.w6}" data-name="${name}" data-slot="w6">
+      </div>
+    `;
+    el.appendChild(row);
+  });
+  el.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('change', (e)=>{
+      const name = e.target.dataset.name, slot = e.target.dataset.slot;
+      if(!state.benchmarks[name]) state.benchmarks[name] = {w0:'', w6:''};
+      state.benchmarks[name][slot] = e.target.value;
+      saveProgress();
+      showToast('Saved');
+    });
+  });
+}
+
+document.getElementById('resetProgress').addEventListener('click', async ()=>{
+  if(!confirm('Clear all saved progress, history, and benchmarks?')) return;
+  state = {currentWeek:1, totalWeeks:6, completedSessions:[], completedDays:{}, dailyMinDates:{}, benchmarks:{}, lastWeights:{}};
+  await saveProgress();
+  render();
+  showToast('Progress reset');
+});
+
+// ---------- ROADMAP ----------
+function renderRoadmap(){
+  const el = document.getElementById('roadmapList');
+  el.innerHTML = '';
+  PHASES.forEach(p=>{
+    const card = document.createElement('div');
+    card.className = 'phase-card'+(p.status==='locked' ? ' locked' : '');
+    const colorClass = p.id===1 ? 'flex' : (p.id===2 ? 'strength' : 'cardio');
+    card.innerHTML = `
+      <div class="pc-eyebrow bg-${colorClass}" style="display:inline-block; padding:3px 8px; border-radius:6px;">${p.status==='active' ? 'ACTIVE — '+p.weeks : p.weeks}</div>
+      <div class="pc-title">Phase ${p.id} · ${p.name}</div>
+      <div class="pc-desc">${p.desc}</div>
+    `;
+    el.appendChild(card);
+  });
+}
+
+// ---------- INIT ----------
+loadProgress();
+</script>
+</body>
+</html>
