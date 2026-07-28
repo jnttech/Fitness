@@ -963,6 +963,7 @@ document.getElementById('eiNotes').addEventListener('change', ()=>{
   saveProgress();
 });
 document.getElementById('closeExerciseInfo').addEventListener('click', ()=>{
+  saveProgress();
   document.getElementById('exerciseInfoOverlay').classList.remove('active');
   activeInfoExercise = null;
   activeInfoSession = null;
@@ -1275,6 +1276,7 @@ document.getElementById('backHomeBtn').addEventListener('click', ()=>{
 });
 document.getElementById('exitGuided').addEventListener('click', ()=>{
   clearInterval(timerInterval);
+  saveProgress();
   document.getElementById('guidedOverlay').classList.remove('active');
 });
 

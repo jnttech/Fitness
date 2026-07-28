@@ -2,6 +2,9 @@
 
 All notable changes to Phase Tracker, in plain English. Newest first.
 
+## v15 — Notes no longer lost on early exit
+- Notes only saved to storage when the notes box lost focus. Closing the guided-workout screen or the exercise info screen right after typing (without tapping elsewhere first) could silently drop that note. Both close buttons now force a save first.
+
 ## v14 — Notes visible during guided workouts
 - The shared per-exercise notes box now also appears at the bottom of the guided workout screen (below the controls and Previous/Skip), editable in place. It reads from and writes to the same shared note as the Day Detail and History views.
 
