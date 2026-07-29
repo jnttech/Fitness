@@ -71,12 +71,8 @@
   .phase-title{font-size:26px; font-weight:700; margin:4px 0 2px; line-height:1.05;}
   .phase-sub{font-size:13px; color:var(--text-dim);}
 
-  .week-nav{display:flex; align-items:center; gap:10px; margin-top:14px;}
-  .week-nav button{
-    width:32px; height:32px; border-radius:8px; border:1px solid var(--border);
-    background:var(--bg-elev); color:var(--text); font-size:16px; cursor:pointer;
-  }
-  .week-nav .week-label{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-dim); flex:1; text-align:center;}
+  .week-nav{margin-top:14px;}
+  .week-nav .week-label{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-dim); letter-spacing:0.05em;}
 
   main{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:18px 20px calc(90px + var(--safe-bottom));}
   .screen{display:none;}
@@ -291,9 +287,7 @@
     <div class="phase-title">Flexibility Priority</div>
     <div class="phase-sub">Strength &amp; Cardio in maintenance — building range for what's next</div>
     <div class="week-nav">
-      <button id="weekPrev">&#8249;</button>
       <div class="week-label" id="weekLabel">WEEK 1 OF 6</div>
-      <button id="weekNext">&#8250;</button>
     </div>
   </header>
 
@@ -691,12 +685,13 @@ function findDayById(dayId){
 }
 
 const BENCHMARKS = [
-  "Overhead Squat (depth / notes)",
-  "Toe-Touch (fingers to floor)",
-  "Thomas Test (hip flexor length)",
-  "Active Straight-Leg Raise",
-  "Shoulder Flexion / Rotation ROM",
-  "Ankle Dorsiflexion (knee-to-wall, cm)",
+  "Squat",
+  "Deadlift",
+  "Bench Press",
+  "Row",
+  "Overhead Press",
+  "Pull-ups",
+  "Dips",
 ];
 
 const PHASES = [
@@ -709,6 +704,7 @@ const PHASES = [
 let state = {
   currentWeek: 1,
   totalWeeks: 6,
+  phaseStartDate: null, // "YYYY-MM-DD" the 6-week phase began — drives automatic week advancement
   completedSessions: [], // {date, label, type, day} — history log, append-only
   completedDays: {}, // "week-dayId" -> true/false — toggleable status for the 7-day plan
   dailyMinDates: {}, // "YYYY-MM-DD-dailyMinId" -> true/false — toggleable status for Morning Flow / Evening Rolling, tracked separately
@@ -721,6 +717,31 @@ function dayKey(week, dayId){ return week+'-'+dayId; }
 function isDayComplete(week, dayId){ return !!state.completedDays[dayKey(week, dayId)]; }
 function todayKey(){ return new Date().toISOString().slice(0,10); }
 function isDailyMinId(id){ return id === 'daily-min-morning' || id === 'daily-min-evening'; }
+function daysBetween(a, b){
+  const d1 = new Date(a.getFullYear(), a.getMonth(), a.getDate());
+  const d2 = new Date(b.getFullYear(), b.getMonth(), b.getDate());
+  return Math.round((d2 - d1) / 86400000);
+}
+// Derives which week of the phase "today" falls on from phaseStartDate, and keeps
+// state.currentWeek in sync — replaces manual prev/next navigation. Each week has
+// its own completedDays keys (dayKey(week, dayId)), so entering a new week is
+// automatically "not done" for every workout with zero extra reset logic needed.
+function syncCurrentWeek(){
+  let justCreated = false;
+  if(!state.phaseStartDate){
+    // First run ever, or upgrading from a save made before this feature existed —
+    // anchor the start date so the currently-stored week doesn't jump on upgrade.
+    const anchor = new Date();
+    anchor.setDate(anchor.getDate() - (state.currentWeek-1)*7);
+    state.phaseStartDate = anchor.toISOString().slice(0,10);
+    justCreated = true;
+  }
+  const start = new Date(state.phaseStartDate+'T00:00:00');
+  const elapsedDays = daysBetween(start, new Date());
+  const week = Math.floor(elapsedDays/7) + 1;
+  state.currentWeek = Math.min(Math.max(week, 1), state.totalWeeks);
+  if(justCreated) saveProgress();
+}
 
 // Resolves which store/key a given "day-like" object (a DAYS entry, DAILY_MIN_MORNING, or DAILY_MIN_EVENING) uses for its toggle.
 function completionKeyFor(day){
@@ -834,6 +855,7 @@ function renderTodayDayCard(){
 }
 
 function render(){
+  syncCurrentWeek();
   document.getElementById('weekLabel').textContent = 'WEEK '+state.currentWeek+' OF '+state.totalWeeks;
 
   const list = document.getElementById('dayList');
@@ -858,13 +880,6 @@ function updateDailyMinCards(){
   document.getElementById('dailyMinEveningCard').classList.toggle('done', eveningDone);
   document.getElementById('dailyMinEveningSub').textContent = eveningDone ? '5 min · fascial release · Done today' : '5 min · fascial release';
 }
-
-document.getElementById('weekPrev').addEventListener('click', ()=>{
-  if(state.currentWeek>1){ state.currentWeek--; render(); saveProgress(); }
-});
-document.getElementById('weekNext').addEventListener('click', ()=>{
-  if(state.currentWeek<state.totalWeeks){ state.currentWeek++; render(); saveProgress(); }
-});
 
 document.getElementById('dailyMinMorningCard').addEventListener('click', ()=> openDayDetail(DAILY_MIN_MORNING));
 document.getElementById('dailyMinEveningCard').addEventListener('click', ()=> openDayDetail(DAILY_MIN_EVENING));
@@ -891,14 +906,6 @@ function openDayDetail(day){
     const targetStr = ex.kind==='time' ? (ex.sets>1 ? ex.sets+' x '+fmtTime(ex.target) : fmtTime(ex.target)) : (ex.sets+' x '+ex.target);
     const row = document.createElement('div');
     row.className = 'exlist-row';
-    let detailHtml = '';
-    if(ex.detail && ex.detail.length){
-      detailHtml = '<ul class="ex-detail-list">' + ex.detail.map(d=>'<li>'+d+'</li>').join('') + '</ul>';
-    }
-    let lastWeightHtml = '';
-    if(ex.kind==='reps' && state.lastWeights[ex.name]){
-      lastWeightHtml = '<div class="ex-last-weight">Last weight: '+state.lastWeights[ex.name]+'</div>';
-    }
     row.innerHTML = `
       <div class="exlist-row-top">
         <span class="exname">${ex.name}</span>
@@ -907,9 +914,20 @@ function openDayDetail(day){
           <button class="info-btn" aria-label="How to perform ${ex.name}">i</button>
         </div>
       </div>
-      ${lastWeightHtml}
-      ${detailHtml}
     `;
+    // Last-weight value is free-form user input — set via textContent (never innerHTML)
+    // so it can never be interpreted as markup.
+    if(ex.kind==='reps' && state.lastWeights[ex.name]){
+      const lw = document.createElement('div');
+      lw.className = 'ex-last-weight';
+      lw.textContent = 'Last weight: '+state.lastWeights[ex.name];
+      row.appendChild(lw);
+    }
+    if(ex.detail && ex.detail.length){
+      const detailWrap = document.createElement('div');
+      detailWrap.innerHTML = '<ul class="ex-detail-list">' + ex.detail.map(d=>'<li>'+d+'</li>').join('') + '</ul>';
+      row.appendChild(detailWrap.firstElementChild);
+    }
     row.querySelector('.info-btn').addEventListener('click', ()=> openExerciseInfo(ex));
     exList.appendChild(row);
   });
@@ -955,8 +973,16 @@ function openExerciseInfo(ex, sessionCtx){
     sessionCtx.session.weights[ex.name].forEach((w, idx)=>{
       const row = document.createElement('div');
       row.className = 'session-weight-row';
-      row.innerHTML = `<label>Set ${idx+1}</label><input type="number" inputmode="decimal" value="${(w!==undefined&&w!==null)?w:''}" placeholder="—">`;
-      row.querySelector('input').addEventListener('change', (e)=>{
+      const label = document.createElement('label');
+      label.textContent = 'Set '+(idx+1);
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.inputMode = 'decimal';
+      input.placeholder = '—';
+      input.value = (w!==undefined && w!==null) ? w : '';
+      row.appendChild(label);
+      row.appendChild(input);
+      input.addEventListener('change', (e)=>{
         sessionCtx.session.weights[ex.name][idx] = e.target.value;
         saveProgress();
         showToast('Saved');
@@ -1346,12 +1372,21 @@ function openHistoryDetail(session){
       const arr = weights[name];
       const hasWeights = arr && arr.some(w => w!==''&&w!==undefined&&w!==null);
       const setsStr = hasWeights
-        ? arr.map((w,i)=>'Set '+(i+1)+': '+((w!==''&&w!==undefined&&w!==null) ? w : '—')).join(' &nbsp;·&nbsp; ')
+        ? arr.map((w,i)=>'Set '+(i+1)+': '+((w!==''&&w!==undefined&&w!==null) ? w : '—')).join(' \u00A0·\u00A0 ')
         : 'Tap to view notes';
       const row = document.createElement('div');
       row.className = 'exlist-row';
       row.style.cursor = 'pointer';
-      row.innerHTML = `<div class="exname" style="margin-bottom:6px;">${name}</div><div class="extarget" style="font-size:12px;">${setsStr}</div>`;
+      const nameEl = document.createElement('div');
+      nameEl.className = 'exname';
+      nameEl.style.marginBottom = '6px';
+      nameEl.textContent = name;
+      const targetEl = document.createElement('div');
+      targetEl.className = 'extarget';
+      targetEl.style.fontSize = '12px';
+      targetEl.textContent = setsStr;
+      row.appendChild(nameEl);
+      row.appendChild(targetEl);
       row.addEventListener('click', ()=>{
         openExerciseInfo(ex, {session});
       });
@@ -1372,13 +1407,32 @@ function renderBenchmarks(){
     const val = state.benchmarks[name] || {w0:'', w6:''};
     const row = document.createElement('div');
     row.className = 'bench-row';
-    row.innerHTML = `
-      <div class="bench-name">${name}</div>
-      <div class="bench-inputs">
-        <input type="text" placeholder="Week 0" value="${val.w0}" data-name="${name}" data-slot="w0">
-        <input type="text" placeholder="Week 6" value="${val.w6}" data-name="${name}" data-slot="w6">
-      </div>
-    `;
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'bench-name';
+    nameEl.textContent = name;
+
+    const inputsWrap = document.createElement('div');
+    inputsWrap.className = 'bench-inputs';
+
+    const w0Input = document.createElement('input');
+    w0Input.type = 'text';
+    w0Input.placeholder = 'Week 0';
+    w0Input.value = val.w0;
+    w0Input.dataset.name = name;
+    w0Input.dataset.slot = 'w0';
+
+    const w6Input = document.createElement('input');
+    w6Input.type = 'text';
+    w6Input.placeholder = 'Week 6';
+    w6Input.value = val.w6;
+    w6Input.dataset.name = name;
+    w6Input.dataset.slot = 'w6';
+
+    inputsWrap.appendChild(w0Input);
+    inputsWrap.appendChild(w6Input);
+    row.appendChild(nameEl);
+    row.appendChild(inputsWrap);
     el.appendChild(row);
   });
   el.querySelectorAll('input').forEach(inp=>{
@@ -1424,6 +1478,7 @@ document.getElementById('importBtn').addEventListener('click', async ()=>{
   }
   if(!confirm('Import this data? It will overwrite progress currently saved on this device.')) return;
   state = Object.assign(state, parsed);
+  syncCurrentWeek();
   await saveProgress();
   render();
   document.getElementById('importInput').value = '';
@@ -1432,7 +1487,7 @@ document.getElementById('importBtn').addEventListener('click', async ()=>{
 
 document.getElementById('resetProgress').addEventListener('click', async ()=>{
   if(!confirm('Clear all saved progress, history, and benchmarks?')) return;
-  state = {currentWeek:1, totalWeeks:6, completedSessions:[], completedDays:{}, dailyMinDates:{}, benchmarks:{}, lastWeights:{}, exerciseNotes:{}};
+  state = {currentWeek:1, totalWeeks:6, phaseStartDate: new Date().toISOString().slice(0,10), completedSessions:[], completedDays:{}, dailyMinDates:{}, benchmarks:{}, lastWeights:{}, exerciseNotes:{}};
   await saveProgress();
   render();
   document.getElementById('exportOutput').style.display = 'none';

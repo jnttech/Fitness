@@ -2,6 +2,16 @@
 
 All notable changes to Phase Tracker, in plain English. Newest first.
 
+## v18 — Automatic week advancement + new benchmark lifts
+- Removed the manual "‹ Week ›" navigation. The week display is now derived from a stored phase-start date and today's real date — it advances on its own as calendar weeks pass, and caps at Week 6 of 6.
+- Each new week automatically starts with every workout marked not-done again — this falls out naturally from how completion is already tracked per-week, no separate reset step needed.
+- If you're upgrading from an older save, your currently-displayed week is preserved rather than jumping when this update lands.
+- Benchmarks list replaced: Squat, Deadlift, Bench Press, Row, Overhead Press, Pull-ups, Dips (previously the flexibility-assessment list). Backup & Transfer section is unchanged.
+
+## v17 — Hardened against malformed/malicious data
+- Weight values, benchmark entries, and per-set session weights were being inserted into the page as raw HTML strings. A value containing something like `"><script>` could have executed as real code — mainly a risk if you ever imported a backup file from an untrusted source. All of these now go through safe DOM APIs (`textContent`/`.value`) instead, so typed or imported text can never be parsed as markup.
+- No functional/visual changes — this is purely a hardening pass.
+
 ## v16 — Notes on Morning Flow/Evening Rolling + fuller History detail
 - Morning Flow and Evening Rolling's Day Detail screen now has its own "My Notes" box directly visible — no need to tap into the "i" screen first. It shares the same note as everywhere else that exercise appears.
 - History session detail now lists every exercise that was part of that session, not just ones with weights entered. Time-based exercises (stretches, cardio, rolling, etc.) show "Tap to view notes" and are still fully clickable through to the shared notes/technique screen.
