@@ -2,6 +2,11 @@
 
 All notable changes to Phase Tracker, in plain English. Newest first.
 
+## v20 — Cloud Sync: fixed Connect not pulling remote data
+- "Generate Sync Code" now stamps a fresh timestamp before pushing, so its snapshot is reliably treated as current.
+- Bigger fix: entering a code via "Connect" no longer goes through last-write-wins timestamp comparison — it now always adopts that code's cloud data, since typing in someone else's code means "link me to that," not "let's see whose clock wins." (Routine background syncing on every app load still uses last-write-wins, which is the right call there.)
+- Added a confirmation prompt before Connect overwrites a device that already has real history/benchmarks/notes saved locally, so a stray connect doesn't silently discard data.
+
 ## v19 — Cross-device Cloud Sync (opt-in, via Supabase)
 - Added a "Cloud Sync" section (Benchmarks tab, above Backup & Transfer) for automatic syncing between devices — no more manual export/import needed for everyday use.
 - Fully opt-in: nothing talks to the network unless you generate or enter a sync code. Without one, the app behaves exactly as before (local-only).

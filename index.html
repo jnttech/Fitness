@@ -879,16 +879,21 @@ async function pushToCloudIfConnected(){
   await pushRemoteProgress(syncCode, state);
 }
 
-// Pulls the remote copy (if any) and keeps whichever of local/remote was saved
-// more recently — simple last-write-wins, appropriate for one person moving
-// between their own devices rather than concurrent multi-user editing.
-async function pullAndReconcile(){
+// Pulls the remote copy (if any) and reconciles it against local. Passing
+// forceRemote:true (used when explicitly entering a code to link a device)
+// always adopts the remote copy if one exists — connecting is meant to "join"
+// that code's data, not race clocks with it. Without that flag (used for the
+// routine background check on every app load), it falls back to simple
+// last-write-wins, which is the right call for silently keeping whichever of
+// this device's local edits or the cloud's are more recent.
+async function pullAndReconcile(opts){
+  opts = opts || {};
   if(!syncCode) return;
   const remote = await fetchRemoteProgress(syncCode);
   if(remote){
     const localTime = state.updatedAt ? new Date(state.updatedAt).getTime() : 0;
     const remoteTime = remote.updatedAt ? new Date(remote.updatedAt).getTime() : 0;
-    if(remoteTime > localTime){
+    if(opts.forceRemote || remoteTime > localTime){
       state = Object.assign({}, state, remote);
       try{ await appStorage.set('progress-data', JSON.stringify(state), false); }catch(e){}
       syncCurrentWeek();
@@ -897,8 +902,8 @@ async function pullAndReconcile(){
       return;
     }
   }
-  // Local is already current (or no remote row exists yet) — push it up so the
-  // cloud copy reflects this device.
+  // No remote row yet, or (non-forced) local was already current — push local
+  // up so the cloud copy reflects this device.
   await pushRemoteProgress(syncCode, state);
 }
 
@@ -918,23 +923,32 @@ function renderSyncSection(){
   }
 }
 
+// Rough check for "this device already has real data worth protecting" — used
+// to confirm before Connect potentially replaces it with another device's data.
+function hasMeaningfulLocalData(){
+  return state.completedSessions.length > 0
+    || Object.keys(state.benchmarks).length > 0
+    || Object.keys(state.exerciseNotes).length > 0;
+}
+
 document.getElementById('generateSyncCodeBtn').addEventListener('click', async ()=>{
   syncCode = generateSyncCode();
   await appStorage.set('sync-code', syncCode, false);
   renderSyncSection();
   showToast('Sync code created');
-  await pushRemoteProgress(syncCode, state);
+  await saveProgress(); // stamps updatedAt to "now" and pushes this snapshot to the cloud
 });
 document.getElementById('connectSyncBtn').addEventListener('click', async ()=>{
   const input = document.getElementById('syncCodeInput');
   const code = input.value.trim().toUpperCase();
   if(!code){ showToast('Enter a sync code first'); return; }
+  if(hasMeaningfulLocalData() && !confirm('Connecting will replace this device\'s saved data with whatever is stored under that sync code. Continue?')) return;
   syncCode = code;
   await appStorage.set('sync-code', syncCode, false);
   input.value = '';
   renderSyncSection();
   showToast('Connecting…');
-  await pullAndReconcile();
+  await pullAndReconcile({forceRemote: true});
 });
 document.getElementById('disconnectSyncBtn').addEventListener('click', async ()=>{
   if(!confirm('Disconnect this device from cloud sync? Your data stays as-is here and in the cloud — reconnect anytime with the same code.')) return;
