@@ -2,6 +2,15 @@
 
 All notable changes to Phase Tracker, in plain English. Newest first.
 
+## v19 — Cross-device Cloud Sync (opt-in, via Supabase)
+- Added a "Cloud Sync" section (Benchmarks tab, above Backup & Transfer) for automatic syncing between devices — no more manual export/import needed for everyday use.
+- Fully opt-in: nothing talks to the network unless you generate or enter a sync code. Without one, the app behaves exactly as before (local-only).
+- "Generate Sync Code" creates a random code, connects this device, and pushes current data to the cloud. Enter that same code on another device's "Connect" field to link it — the more recently-saved copy wins automatically (simple last-write-wins, since it's one person moving between their own devices, not simultaneous multi-user editing).
+- The sync code is the only thing gating access to your data (no separate login system) — treat it like a password, don't share it.
+- On the database side: the raw table has no public access at all (RLS enabled, zero policies). Two narrow functions (get/set-by-code) are the only way in or out, each only ever touching the single row matching the code passed in.
+- Every local save now also pushes to the cloud in the background (if connected); every app load pulls and reconciles in the background too, without blocking the UI on network access.
+- "Disconnect This Device" unlinks local storage from the cloud without deleting anything — reconnecting later with the same code picks the data back up.
+
 ## v18 — Automatic week advancement + new benchmark lifts
 - Removed the manual "‹ Week ›" navigation. The week display is now derived from a stored phase-start date and today's real date — it advances on its own as calendar weeks pass, and caps at Week 6 of 6.
 - Each new week automatically starts with every workout marked not-done again — this falls out naturally from how completion is already tracked per-week, no separate reset step needed.

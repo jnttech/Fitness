@@ -278,6 +278,7 @@
   }
   .toggle-switch.on .toggle-knob{left:24px; background:#0D1512;}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div id="app">
@@ -325,6 +326,23 @@
     <section class="screen" id="screen-benchmarks">
       <div class="section-title">Week 0 → Week 6</div>
       <div id="benchList"></div>
+
+      <div class="section-title">Cloud Sync</div>
+      <div class="backup-desc" id="syncStatusDesc">Not connected — generate a sync code to keep this app in step across your devices automatically.</div>
+
+      <div id="syncConnectedBox" style="display:none;">
+        <div class="backup-desc">Your sync code — enter this on your other device to connect it:</div>
+        <div class="mono" id="syncCodeText" style="background:var(--bg-elev); border:1px solid var(--border); border-radius:10px; padding:12px; font-size:15px; text-align:center; letter-spacing:0.05em; margin-bottom:10px;">—</div>
+        <button class="btn-secondary" id="copySyncCodeBtn">Copy Sync Code</button>
+        <button class="btn-secondary" id="disconnectSyncBtn">Disconnect This Device</button>
+      </div>
+
+      <div id="syncSetupBox">
+        <button class="btn-primary" id="generateSyncCodeBtn">Generate Sync Code</button>
+        <div class="backup-desc" style="margin-top:16px;">Already have a sync code from another device? Enter it here to connect:</div>
+        <input type="text" id="syncCodeInput" class="backup-textarea" style="min-height:auto; text-align:center; letter-spacing:0.05em;" placeholder="XXXX-XXXX-XXXX-XXXX">
+        <button class="btn-secondary" id="connectSyncBtn">Connect</button>
+      </div>
 
       <div class="section-title">Backup &amp; Transfer</div>
       <div class="backup-desc">Your data is saved only on this device/browser. Export it here, then paste it into Import on another device to bring your history, weights, and benchmarks along.</div>
@@ -705,6 +723,7 @@ let state = {
   currentWeek: 1,
   totalWeeks: 6,
   phaseStartDate: null, // "YYYY-MM-DD" the 6-week phase began — drives automatic week advancement
+  updatedAt: null, // ISO timestamp of the last local save — used to resolve cloud sync conflicts (last write wins)
   completedSessions: [], // {date, label, type, day} — history log, append-only
   completedDays: {}, // "week-dayId" -> true/false — toggleable status for the 7-day plan
   dailyMinDates: {}, // "YYYY-MM-DD-dailyMinId" -> true/false — toggleable status for Morning Flow / Evening Rolling, tracked separately
@@ -790,14 +809,148 @@ async function loadProgress(){
       state = Object.assign(state, parsed);
     }
   }catch(e){ /* no saved data yet, defaults stand */ }
-  render();
+  await loadSyncCode();
+  render(); // show local data immediately — never block the UI on a network round-trip
+  if(syncCode) pullAndReconcile(); // best-effort background check against the cloud copy
 }
 
 async function saveProgress(){
+  state.updatedAt = new Date().toISOString();
   try{
     await appStorage.set('progress-data', JSON.stringify(state), false);
   }catch(e){ console.error('Storage save failed', e); }
+  pushToCloudIfConnected(); // fire-and-forget — never block on network for a local save
 }
+
+// ---------- CLOUD SYNC (Supabase) ----------
+// Opt-in cross-device sync. A random "sync code" is the only thing that scopes
+// access to your data — there's no login system. Nothing here runs unless the
+// person explicitly generates or enters a code in the Cloud Sync section.
+const SUPABASE_URL = 'https://jvsrwoaxnvwamphlmati.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_UwLHa4t9BySgziFYmdyjmw_l4WMafJ9';
+// This is the public "publishable" key (Supabase's newer name for the anon
+// key), not a secret — it identifies the project, it doesn't authorize access
+// on its own. Real access control lives in the two Postgres functions it's
+// allowed to call (get_progress/set_progress), which only ever touch the
+// single row matching the sync code passed in.
+const supabaseClient = (window.supabase)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+let syncCode = null; // in-memory copy of this device's connected sync code, or null if not connected
+
+async function loadSyncCode(){
+  try{
+    const res = await appStorage.get('sync-code', false);
+    syncCode = (res && res.value) ? res.value : null;
+  }catch(e){ syncCode = null; }
+}
+
+function generateSyncCode(){
+  // Avoids ambiguous characters (0/O, 1/I/L) since this may need to be typed by hand.
+  const alphabet = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  let raw = '';
+  for(let i=0;i<16;i++){ raw += alphabet[bytes[i] % alphabet.length]; }
+  return raw.match(/.{1,4}/g).join('-');
+}
+
+async function fetchRemoteProgress(code){
+  if(!supabaseClient) return null;
+  try{
+    const { data, error } = await supabaseClient.rpc('get_progress', { p_sync_code: code });
+    if(error){ console.error('Cloud sync fetch error', error); return null; }
+    return data || null;
+  }catch(e){ console.error('Cloud sync fetch failed', e); return null; }
+}
+
+async function pushRemoteProgress(code, dataObj){
+  if(!supabaseClient) return false;
+  try{
+    const { error } = await supabaseClient.rpc('set_progress', { p_sync_code: code, p_data: dataObj });
+    if(error){ console.error('Cloud sync push error', error); return false; }
+    return true;
+  }catch(e){ console.error('Cloud sync push failed', e); return false; }
+}
+
+async function pushToCloudIfConnected(){
+  if(!syncCode) return;
+  await pushRemoteProgress(syncCode, state);
+}
+
+// Pulls the remote copy (if any) and keeps whichever of local/remote was saved
+// more recently — simple last-write-wins, appropriate for one person moving
+// between their own devices rather than concurrent multi-user editing.
+async function pullAndReconcile(){
+  if(!syncCode) return;
+  const remote = await fetchRemoteProgress(syncCode);
+  if(remote){
+    const localTime = state.updatedAt ? new Date(state.updatedAt).getTime() : 0;
+    const remoteTime = remote.updatedAt ? new Date(remote.updatedAt).getTime() : 0;
+    if(remoteTime > localTime){
+      state = Object.assign({}, state, remote);
+      try{ await appStorage.set('progress-data', JSON.stringify(state), false); }catch(e){}
+      syncCurrentWeek();
+      render();
+      showToast('Synced from cloud');
+      return;
+    }
+  }
+  // Local is already current (or no remote row exists yet) — push it up so the
+  // cloud copy reflects this device.
+  await pushRemoteProgress(syncCode, state);
+}
+
+function renderSyncSection(){
+  const connectedBox = document.getElementById('syncConnectedBox');
+  const setupBox = document.getElementById('syncSetupBox');
+  const statusDesc = document.getElementById('syncStatusDesc');
+  if(syncCode){
+    connectedBox.style.display = 'block';
+    setupBox.style.display = 'none';
+    statusDesc.textContent = 'Connected — this device stays in sync automatically. Keep your code private; anyone with it can read or overwrite this data.';
+    document.getElementById('syncCodeText').textContent = syncCode;
+  } else {
+    connectedBox.style.display = 'none';
+    setupBox.style.display = 'block';
+    statusDesc.textContent = 'Not connected — generate a sync code to keep this app in step across your devices automatically.';
+  }
+}
+
+document.getElementById('generateSyncCodeBtn').addEventListener('click', async ()=>{
+  syncCode = generateSyncCode();
+  await appStorage.set('sync-code', syncCode, false);
+  renderSyncSection();
+  showToast('Sync code created');
+  await pushRemoteProgress(syncCode, state);
+});
+document.getElementById('connectSyncBtn').addEventListener('click', async ()=>{
+  const input = document.getElementById('syncCodeInput');
+  const code = input.value.trim().toUpperCase();
+  if(!code){ showToast('Enter a sync code first'); return; }
+  syncCode = code;
+  await appStorage.set('sync-code', syncCode, false);
+  input.value = '';
+  renderSyncSection();
+  showToast('Connecting…');
+  await pullAndReconcile();
+});
+document.getElementById('disconnectSyncBtn').addEventListener('click', async ()=>{
+  if(!confirm('Disconnect this device from cloud sync? Your data stays as-is here and in the cloud — reconnect anytime with the same code.')) return;
+  syncCode = null;
+  await appStorage.set('sync-code', '', false);
+  renderSyncSection();
+  showToast('Disconnected');
+});
+document.getElementById('copySyncCodeBtn').addEventListener('click', async ()=>{
+  try{
+    await navigator.clipboard.writeText(syncCode || '');
+    showToast('Copied to clipboard');
+  }catch(e){
+    showToast('Copy failed — select the code manually');
+  }
+});
 
 function showToast(msg){
   const t = document.getElementById('toast');
@@ -869,6 +1022,7 @@ function render(){
   renderHistory();
   renderBenchmarks();
   renderRoadmap();
+  renderSyncSection();
 }
 function updateDailyMinCards(){
   const today = todayKey();
